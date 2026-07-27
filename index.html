@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOTSODOTS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f0fdf4; color: #166534; }
+        .spinner { border: 4px solid rgba(22, 101, 52, 0.1); border-left-color: #166534; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .sticky-col { position: sticky; left: 0; background-color: #f8fafc; z-index: 10; box-shadow: 2px 0 5px rgba(0,0,0,0.05); }
+        .sticky-header { z-index: 11; }
+        
+        input[type="number"]::-webkit-inner-spin-button, 
+        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type="number"] { -moz-appearance: textfield; }
+        
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        ::-webkit-scrollbar { height: 8px; width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #c6f6d5; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #86efac; }
+    </style>
+</head>
+<body class="min-h-screen pb-12">
+
+    <header class="bg-green-700 text-white shadow-md p-4 sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <!-- Action Lines (Snap impact) -->
+                <path d="M 24 4 L 24 10" stroke-width="3" />
+                <path d="M 14 8 L 18 13" stroke-width="3" />
+                <path d="M 34 8 L 30 13" stroke-width="3" />
+                
+                <!-- Left Pencil (Eraser Side) -->
+                <g transform="rotate(-15, 18, 24)">
+                    <!-- Eraser -->
+                    <path d="M 8 18 L 5 18 A 6 6 0 0 0 5 30 L 8 30 Z" fill="currentColor" fill-opacity="0.3" />
+                    <!-- Ferrule (Metal Band) -->
+                    <rect x="8" y="18" width="5" height="12" />
+                    <line x1="10.5" y1="18" x2="10.5" y2="30" />
+                    <!-- Body -->
+                    <path d="M 13 18 L 22 18 L 24 21 L 22 24 L 24 27 L 22 30 L 13 30 Z" />
+                    <!-- Body Detail Line -->
+                    <line x1="13" y1="24" x2="21" y2="24" />
+                </g>
+                
+                <!-- Right Pencil (Point Side) -->
+                <g transform="rotate(15, 30, 24)">
+                    <!-- Body -->
+                    <path d="M 26 18 L 36 18 L 36 30 L 26 30 L 28 27 L 26 24 L 28 21 Z" />
+                    <!-- Body Detail Line -->
+                    <line x1="28" y1="24" x2="36" y2="24" />
+                    <!-- Wood Cone -->
+                    <path d="M 36 18 L 45 24 L 36 30 Z" fill="currentColor" fill-opacity="0.3" />
+                    <!-- Graphite Tip -->
+                    <path d="M 40.5 21 L 45 24 L 40.5 27 Z" fill="currentColor" />
+                </g>
+            </svg>
+            <h1 class="text-2xl font-bold tracking-wide">LOTSODOTS</h1>
+        </div>
+    </header>
+
+    <main id="app" class="max-w-4xl mx-auto mt-6 px-4"></main>
+
+    <script>
+        const apiKey = "";
+        
+        let state = {
+            view: 'UPLOAD', // UPLOAD, LOADING, EDIT_PLAYERS, EDIT_SCORES, FORMAT, MATCH_SETUP, RESULTS, SCORECARD_DETAILS
+            players: [], 
+            pars: Array(18).fill(4),
+            strokeIndexes: Array.from({length: 18}, (_, i) => i + 1),
+            selectedFormat: null, 
+            results: [],
+            matches: [] // Holds our hole-by-hole team assignments
+        };
+
+        const appEl = document.getElementById('app');
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-2xl z-[100] fade-in font-medium max-w-sm text-center';
+            toast.innerText = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => toast.remove(), 500);
+            }, 4000);
+        }
+
+        async function processImage(file) {
+            setState('LOADING');
+            try {
+                const base64Data = await fileToBase64(file);
+                const extractedData = await callGeminiAPI(base64Data);
+                
+                if (extractedData && extractedData.players) {
+                    state.players = extractedData.players.map((p, index) => ({
+                        id: 'player_' + Date.now() + index,
+                        name: p.name || `Player ${index + 1}`,
+                        handicap: 0,
+                        scores: padArray(p.scores || [], 18, 0).map(s => Number(s) || 0)
+                    }));
+                    state.pars = padArray(extractedData.pars || [], 18, 4).map(s => Number(s) || 4);
+                    state.strokeIndexes = padArray(extractedData.strokeIndexes || [], 18, 0).map((s, i) => Number(s) || (i+1));
+                } else {
+                    throw new Error("Invalid format");
+                }
+            } catch (err) {
+                console.error(err);
+                showToast("Could not read the scorecard. Entering manual mode.");
+                state.players = [{ id: 'player_1', name: 'Player 1', handicap: 0, scores: Array(18).fill(0) }];
+            }
+            setState('EDIT_PLAYERS');
+        }
+
+        async function callGeminiAPI(base64String) {
+            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{
+                    role: "user",
+                    parts: [
+                        { text: "Analyze this golf scorecard. Extract players' names, hole-by-hole scores (1 to 18). Extract Par for each hole, and Stroke Index (Handicap rating 1-18) if visible. Return exactly 18 elements for pars, strokeIndexes, and each player's scores array (use 0 for blank/unread holes)." },
+                        { inlineData: { mimeType: "image/jpeg", data: base64String.split(',')[1] } }
+                    ]
+                }],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            players: { type: "ARRAY", items: { type: "OBJECT", properties: { name: { type: "STRING" }, scores: { type: "ARRAY", items: { type: "NUMBER" } } } } },
+                            pars: { type: "ARRAY", items: { type: "NUMBER" } },
+                            strokeIndexes: { type: "ARRAY", items: { type: "NUMBER" } }
+                        }
+                    }
+                }
+            };
+
+            for (let i = 0; i < 5; i++) {
+                try {
+                    const response = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    const data = await response.json();
+                    if (data.candidates && data.candidates[0].content.parts[0].text) return JSON.parse(data.candidates[0].content.parts[0].text);
+                } catch (e) { await new Promise(r => setTimeout(r, Math.pow(2, i) * 1000)); }
+            }
+            throw new Error("API completely failed.");
+        }
+
+        function getPlayerNetOnHole(p, holeIndex) {
+            if (!p || p.scores[holeIndex] === 0) return 999;
+            const hcp = p.handicap;
+            const strokeIndex = state.strokeIndexes[holeIndex] || 18;
+            const strokesGiven = Math.floor(hcp / 18) + (strokeIndex <= (hcp % 18) ? 1 : 0);
+            return p.scores[holeIndex] - strokesGiven;
+        }
+
+        function getStrokesGivenOnHole(p, holeIndex) {
+            if (!p) return 0;
+            const hcp = p.handicap;
+            const strokeIndex = state.strokeIndexes[holeIndex] || 18;
+            return Math.floor(hcp / 18) + (strokeIndex <= (hcp % 18) ? 1 : 0);
+        }
+
+        function calculateResults() {
+            const format = state.selectedFormat;
+            let results = state.players.map(p => ({ ...p, totalScore: 0, points: 0, holeByHole: Array(18).fill(0) }));
+
+            if (format === 'GROSS') {
+                results.forEach(p => { p.totalScore = p.scores.reduce((a, b) => a + b, 0); p.holeByHole = [...p.scores]; });
+                results.sort((a, b) => a.totalScore - b.totalScore);
+            } else if (format === 'NET') {
+                results.forEach(p => {
+                    let netTotal = 0;
+                    for (let hole = 0; hole < 18; hole++) {
+                        const netScore = getPlayerNetOnHole(p, hole);
+                        p.holeByHole[hole] = netScore === 999 ? 0 : netScore;
+                        netTotal += p.holeByHole[hole];
+                    }
+                    p.totalScore = netTotal; 
+                });
+                results.sort((a, b) => a.totalScore - b.totalScore);
+            } else if (format === 'SKINS') {
+                for (let hole = 0; hole < 18; hole++) {
+                    let netScoresOnHole = results.map(p => getPlayerNetOnHole(p, hole));
+                    const minNet = Math.min(...netScoresOnHole);
+                    if (minNet < 999) {
+                        const winners = [];
+                        netScoresOnHole.forEach((score, index) => { if (score === minNet) winners.push(index); });
+                        if (winners.length === 1) { results[winners[0]].points += 1; results[winners[0]].holeByHole[hole] = 1; }
+                    }
+                }
+                results.sort((a, b) => b.points - a.points);
+            }
+            state.results = results;
+        }
+
+        function calculateMatchPlay() {
+            const match = state.matches[0];
+            let playerPoints = {};
+            state.players.forEach(p => playerPoints[p.id] = 0);
+            match.holeByHole = [];
+
+            for (let i = 0; i < 18; i++) {
+                let sideA = Object.keys(match.holeAssignments[i] || {}).filter(id => match.holeAssignments[i][id] === 'A');
+                let sideB = Object.keys(match.holeAssignments[i] || {}).filter(id => match.holeAssignments[i][id] === 'B');
+
+                let aScores = sideA.map(id => getPlayerNetOnHole(state.players.find(p=>p.id===id), i)).filter(s => s < 999);
+                let bScores = sideB.map(id => getPlayerNetOnHole(state.players.find(p=>p.id===id), i)).filter(s => s < 999);
+
+                if (aScores.length === 0 && bScores.length === 0) {
+                    match.holeByHole.push('-');
+                    continue;
+                }
+                
+                if (aScores.length === 0) aScores = [999];
+                if (bScores.length === 0) bScores = [999];
+
+                let ptsA = 0;
+                let ptsB = 0;
+                let status = "";
+
+                if (state.selectedFormat === '6S') {
+                    if (i < 6) { 
+                        // Holes 1-6: Best Ball
+                        let minA = Math.min(...aScores);
+                        let minB = Math.min(...bScores);
+                        if (minA < minB) ptsA = 1; else if (minB < minA) ptsB = 1; else { ptsA = 0.5; ptsB = 0.5; }
+                        status = ptsA > ptsB ? 'A Wins Best Ball' : (ptsB > ptsA ? 'B Wins Best Ball' : 'Halved');
+                    } else if (i < 12) { 
+                        // Holes 7-12: Total Score
+                        let sumA = aScores.includes(999) ? 999 : aScores.reduce((a,b)=>a+b,0);
+                        let sumB = bScores.includes(999) ? 999 : bScores.reduce((a,b)=>a+b,0);
+                        if (sumA < sumB) ptsA = 1; else if (sumB < sumA) ptsB = 1; else { ptsA = 0.5; ptsB = 0.5; }
+                        status = ptsA > ptsB ? 'A Wins Total Score' : (ptsB > ptsA ? 'B Wins Total Score' : 'Halved');
+                    } else { 
+                        // Holes 13-18: High / Low
+                        let minA = Math.min(...aScores); let minB = Math.min(...bScores);
+                        let maxA = Math.max(...aScores); let maxB = Math.max(...bScores);
+                        
+                        let lowWinner = minA < minB ? 'A' : (minB < minA ? 'B' : 'Tie');
+                        let highWinner = maxA < maxB ? 'A' : (maxB < maxA ? 'B' : 'Tie');
+                        
+                        if (lowWinner === 'A') ptsA++; else if (lowWinner === 'B') ptsB++; else { ptsA += 0.5; ptsB += 0.5; }
+                        if (highWinner === 'A') ptsA++; else if (highWinner === 'B') ptsB++; else { ptsA += 0.5; ptsB += 0.5; }
+                        
+                        if (ptsA > ptsB) status = `A Wins High/Low (${ptsA}-${ptsB})`;
+                        else if (ptsB > ptsA) status = `B Wins High/Low (${ptsB}-${ptsA})`;
+                        else status = `Halved High/Low`;
+                    }
+                } else { 
+                    // Standard MATCH (Best Ball per hole)
+                    let minA = Math.min(...aScores);
+                    let minB = Math.min(...bScores);
+                    if (minA < minB) ptsA = 1; else if (minB < minA) ptsB = 1; else { ptsA = 0.5; ptsB = 0.5; }
+                    status = ptsA > ptsB ? 'A Wins' : (ptsB > ptsA ? 'B Wins' : 'Halved');
+                }
+
+                match.holeByHole.push(status);
+                sideA.forEach(id => playerPoints[id] += ptsA);
+                sideB.forEach(id => playerPoints[id] += ptsB);
+            }
+
+            match.playerPoints = playerPoints;
+            state.results = state.players.map(p => ({ ...p, points: match.playerPoints[p.id] })).sort((a,b) => b.points - a.points);
+        }
+
+        function setState(newView) { state.view = newView; render(); }
+
+        function render() {
+            appEl.innerHTML = '';
+            appEl.className = 'max-w-4xl mx-auto mt-6 px-4 fade-in';
+            switch(state.view) {
+                case 'UPLOAD': renderUpload(); break;
+                case 'LOADING': renderLoading(); break;
+                case 'EDIT_PLAYERS': renderEditPlayers(); break;
+                case 'EDIT_SCORES': renderEditScores(); break;
+                case 'FORMAT': renderFormat(); break;
+                case 'MATCH_SETUP': renderMatchSetup(); break;
+                case 'RESULTS': renderResults(); break;
+                case 'SCORECARD_DETAILS': renderScorecardDetails(); break;
+            }
+        }
+
+        function renderUpload() {
+            appEl.innerHTML = `
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-green-800 mb-2">Analyze Your Scorecard</h2>
+                    <p class="text-green-600">Snap a picture or upload an image of your scorecard.</p>
+                </div>
+                <div class="border-4 border-dashed border-green-300 rounded-2xl bg-white p-12 text-center cursor-pointer hover:bg-green-50 transition-colors" onclick="document.getElementById('fileInput').click()">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-16 w-16 text-green-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    <h3 class="text-lg font-semibold text-green-700">Tap to Upload Scorecard</h3>
+                    <input type="file" id="fileInput" class="hidden" accept="image/*" onchange="handleFileUpload(event)">
+                </div>
+                <div class="mt-8 text-center">
+                    <button onclick="skipToManual()" class="text-green-600 font-medium hover:underline">Or enter scores manually</button>
+                </div>
+            `;
+        }
+
+        function renderLoading() {
+            appEl.innerHTML = `<div class="flex flex-col items-center justify-center py-20"><div class="spinner mb-6"></div><h2 class="text-2xl font-bold text-green-800">Reading Scorecard...</h2></div>`;
+        }
+
+        function renderEditPlayers() {
+            let playersHtml = state.players.map((p, idx) => `
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-green-100 flex flex-col sm:flex-row gap-4 items-end mb-4">
+                    <div class="w-full sm:flex-1">
+                        <label class="block text-sm font-semibold text-green-700 mb-1">Player ${idx + 1} Name</label>
+                        <input type="text" value="${p.name}" onchange="updatePlayer('${p.id}', 'name', this.value)" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-green-500 outline-none">
+                    </div>
+                    <div class="w-full sm:w-32">
+                        <label class="block text-sm font-semibold text-green-700 mb-1">Handicap</label>
+                        <input type="number" value="${p.handicap}" onchange="updatePlayer('${p.id}', 'handicap', this.value)" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-green-500 outline-none">
+                    </div>
+                    <button onclick="removePlayer('${p.id}')" ${state.players.length <= 1 ? 'disabled opacity-50 cursor-not-allowed' : ''} class="p-2.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors w-full sm:w-auto flex justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                    </button>
+                </div>
+            `).join('');
+
+            appEl.innerHTML = `
+                <div class="mb-6"><h2 class="text-2xl font-bold text-green-800">Verify Players & Handicaps</h2></div>
+                <div class="mb-6">${playersHtml}
+                    <button onclick="addPlayer()" class="w-full py-4 border-2 border-dashed border-green-400 text-green-600 font-semibold rounded-xl hover:bg-green-50 flex items-center justify-center gap-2">Add Another Player</button>
+                </div>
+                <div class="flex justify-end mt-8"><button onclick="setState('EDIT_SCORES')" class="bg-green-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-green-700 shadow-md">Next: Verify Scores</button></div>
+            `;
+        }
+
+        function renderEditScores() {
+            let headerRow = `<th class="sticky-col sticky-header bg-green-700 text-white p-3 text-left min-w-[120px]">Hole</th>`;
+            let parRow = `<td class="sticky-col bg-green-50 font-semibold p-3 border-b text-green-800">Par</td>`;
+            let siRow = `<td class="sticky-col bg-green-50 font-semibold p-3 border-b text-green-800">Stroke Index</td>`;
+            
+            for(let i=0; i<18; i++) {
+                headerRow += `<th class="p-3 border-b border-green-600 bg-green-600 text-white min-w-[60px] text-center">${i+1}</th>`;
+                parRow += `<td class="p-2 border-b text-center"><input type="number" min="1" max="6" value="${state.pars[i]}" onchange="state.pars[${i}]=Number(this.value)" class="w-12 p-1 text-center border rounded"></td>`;
+                siRow += `<td class="p-2 border-b text-center"><input type="number" min="1" max="18" value="${state.strokeIndexes[i]}" onchange="state.strokeIndexes[${i}]=Number(this.value)" class="w-12 p-1 text-center border rounded"></td>`;
+            }
+
+            let playerRows = state.players.map((p) => {
+                let row = `<td class="sticky-col bg-white font-bold p-3 border-b border-r text-gray-800">${p.name}</td>`;
+                for(let i=0; i<18; i++) {
+                    row += `<td class="p-2 border-b text-center"><input type="number" min="0" max="20" value="${p.scores[i] || ''}" oninput="updateScore('${p.id}', ${i}, this.value)" class="w-12 p-2 text-center border border-gray-300 rounded font-semibold text-gray-800 focus:ring-2 focus:ring-green-500 outline-none"></td>`;
+                }
+                return `<tr>${row}</tr>`;
+            }).join('');
+
+            appEl.innerHTML = `
+                <div class="mb-6"><h2 class="text-2xl font-bold text-green-800">Verify Scores</h2></div>
+                <div class="bg-white rounded-xl shadow-md overflow-hidden border border-green-200">
+                    <div class="overflow-x-auto relative"><table class="w-full text-sm border-collapse"><thead><tr>${headerRow}</tr></thead><tbody><tr class="bg-green-50">${parRow}</tr><tr class="bg-green-50">${siRow}</tr>${playerRows}</tbody></table></div>
+                </div>
+                <div class="flex justify-between mt-8"><button onclick="setState('EDIT_PLAYERS')" class="text-green-700 font-semibold px-4 py-2 hover:bg-green-100 rounded-lg">Back</button><button onclick="setState('FORMAT')" class="bg-green-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-green-700 shadow-md">Next: Choose Format</button></div>
+            `;
+        }
+
+        function renderFormat() {
+            appEl.innerHTML = `
+                <div class="text-center mb-8"><h2 class="text-3xl font-bold text-green-800 mb-2">How should we evaluate?</h2></div>
+                <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                    <button onclick="selectFormat('GROSS')" class="bg-white border-2 border-green-200 p-6 rounded-2xl shadow-sm hover:border-green-500 transition-all text-left">
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Stroke (Gross)</h3><p class="text-sm text-gray-500">Lowest total score wins.</p>
+                    </button>
+                    <button onclick="selectFormat('NET')" class="bg-white border-2 border-green-200 p-6 rounded-2xl shadow-sm hover:border-green-500 transition-all text-left">
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Stroke (Net)</h3><p class="text-sm text-gray-500">Gross score minus handicap.</p>
+                    </button>
+                    <button onclick="selectFormat('SKINS')" class="bg-white border-2 border-green-200 p-6 rounded-2xl shadow-sm hover:border-green-500 transition-all text-left">
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Skins (Net)</h3><p class="text-sm text-gray-500">Win hole outright for 1 point.</p>
+                    </button>
+                    <button onclick="selectFormat('MATCH')" class="bg-white border-2 border-green-200 p-6 rounded-2xl shadow-sm hover:border-green-500 transition-all text-left">
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Match Play</h3><p class="text-sm text-gray-500">Points per hole (Best Ball).</p>
+                    </button>
+                    <button onclick="selectFormat('6S')" class="bg-white border-2 border-indigo-300 p-6 rounded-2xl shadow-sm hover:border-indigo-600 transition-all text-left sm:col-span-2 lg:col-span-4 bg-indigo-50">
+                        <h3 class="text-xl font-bold text-indigo-900 mb-2">6s (Sixes Round Robin)</h3><p class="text-sm text-indigo-700">Rotate teams! Holes 1-6: Best Ball. Holes 7-12: Total Score. Holes 13-18: High/Low.</p>
+                    </button>
+                </div>
+            `;
+        }
+
+        function renderMatchSetup() {
+            if (state.matches.length === 0) {
+                // Initialize default team layout for Holes 1-18
+                let defaultAssignments = Array(18).fill(null).map(() => {
+                    let hm = {};
+                    if (state.players.length >= 2) {
+                        hm[state.players[0].id] = 'A';
+                        hm[state.players[1].id] = 'B';
+                        if (state.players.length >= 4) {
+                            hm[state.players[2].id] = 'A';
+                            hm[state.players[3].id] = 'B';
+                        }
+                    }
+                    return hm;
+                });
+                state.matches.push({ id: 'match_1', holeAssignments: defaultAssignments });
+            }
+
+            let formatTitle = state.selectedFormat === '6S' ? 'Sixes Team Setup' : 'Match Play Team Setup';
+            let instructions = state.selectedFormat === '6S' ? 'Tap players to assign them to Team A or Team B for each hole segment.' : 'Assign players to Team A or Team B.';
+
+            let holeRows = state.matches[0].holeAssignments.map((assignment, i) => {
+                let playerButtons = state.players.map(p => {
+                    let team = assignment[p.id];
+                    let btnClass = "px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-all ";
+                    let label = p.name;
+                    if (team === 'A') { btnClass += "bg-green-600 text-white border border-green-700 hover:bg-green-700"; label += " (Team A)"; }
+                    else if (team === 'B') { btnClass += "bg-blue-600 text-white border border-blue-700 hover:bg-blue-700"; label += " (Team B)"; }
+                    else { btnClass += "bg-gray-100 text-gray-500 border border-gray-300 hover:bg-gray-200"; }
+                    
+                    return `<button onclick="cyclePlayerSide(${i}, '${p.id}')" class="${btnClass}">${label}</button>`;
+                }).join('');
+
+                return `
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-3 p-4 bg-white border-b hover:bg-gray-50 transition-colors">
+                        <div class="w-16 font-black text-gray-400">Hole ${i+1}</div>
+                        <div class="flex-1 flex flex-wrap gap-2">${playerButtons}</div>
+                        <button onclick="fillDown(${i})" class="text-indigo-600 font-semibold hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-2 rounded-lg flex items-center gap-1 transition-colors text-sm" title="Apply these teams to all remaining holes">
+                            Copy Down <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+
+            appEl.innerHTML = `
+                <div class="mb-6">
+                    <h2 class="text-3xl font-bold text-green-800">${formatTitle}</h2>
+                    <p class="text-green-600 mt-1">${instructions}</p>
+                </div>
+                <div class="border rounded-xl overflow-hidden shadow-sm mb-8">${holeRows}</div>
+                <div class="flex justify-between pb-10">
+                    <button onclick="setState('FORMAT')" class="text-green-700 font-semibold px-4 py-2 hover:bg-green-100 rounded-lg">Back</button>
+                    <button onclick="evaluateMatchPlay()" class="bg-green-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-green-700 shadow-md">Start Match</button>
+                </div>
+            `;
+        }
+
+        function renderResults() {
+            let medals = ['🥇', '🥈', '🥉', '🏅'];
+            let colors = ['bg-yellow-100 border-yellow-400', 'bg-gray-100 border-gray-400', 'bg-orange-100 border-orange-400', 'bg-white border-green-200'];
+
+            let listHtml = state.results.map((p, idx) => {
+                let medal = idx < 3 ? medals[idx] : medals[3];
+                let colorClass = idx < 3 ? colors[idx] : colors[3];
+                let scoreDisplay = (state.selectedFormat === 'MATCH' || state.selectedFormat === '6S' || state.selectedFormat === 'SKINS') ? `${p.points} pts` : p.totalScore;
+
+                return `
+                    <div class="${colorClass} border-2 rounded-2xl p-4 sm:p-6 mb-4 flex items-center justify-between shadow-sm transform transition hover:scale-[1.02]">
+                        <div class="flex items-center gap-4">
+                            <div class="text-3xl sm:text-4xl">${medal}</div>
+                            <div>
+                                <h3 class="text-xl sm:text-2xl font-bold text-gray-800">${p.name}</h3>
+                                <p class="text-sm text-gray-600">Handicap: ${p.handicap}</p>
+                            </div>
+                        </div>
+                        <div class="text-right"><div class="text-3xl sm:text-4xl font-black text-gray-900">${scoreDisplay}</div></div>
+                    </div>
+                `;
+            }).join('');
+
+            appEl.innerHTML = `
+                <div class="text-center mb-8"><h2 class="text-3xl font-bold text-green-800 mb-2">Final Leaderboard</h2><p class="text-green-600 font-medium">Format: ${state.selectedFormat}</p></div>
+                <div class="max-w-2xl mx-auto">${listHtml}</div>
+                <div class="mt-8 text-center"><button onclick="setState('SCORECARD_DETAILS')" class="bg-white text-green-700 font-semibold px-6 py-3 border-2 border-green-300 hover:bg-green-50 rounded-lg">See Scorecard Breakdown</button></div>
+                <div class="mt-8 text-center"><button onclick="resetApp()" class="text-gray-500 font-medium hover:underline">Start New Scorecard</button></div>
+            `;
+        }
+
+        function renderScorecardDetails() {
+            let headerRow = `<th class="sticky-col sticky-header bg-green-700 text-white p-3 text-left min-w-[120px]">Hole</th>`;
+            let parRow = `<td class="sticky-col bg-green-50 font-semibold p-3 border-b text-green-800">Par</td>`;
+            for(let i=0; i<18; i++) {
+                headerRow += `<th class="p-3 border-b border-green-600 bg-green-600 text-white min-w-[50px] text-center">${i+1}</th>`;
+                parRow += `<td class="p-2 border-b text-center font-medium">${state.pars[i]}</td>`;
+            }
+            headerRow += `<th class="p-3 border-b bg-green-800 text-white min-w-[60px] text-center sticky right-0">Total</th>`;
+            parRow += `<td class="p-2 border-b text-center font-bold bg-green-100 sticky right-0">${state.pars.reduce((a,b)=>a+b,0)}</td>`;
+
+            let isMatch = state.selectedFormat === 'MATCH' || state.selectedFormat === '6S';
+            
+            let playerRows = state.results.map((p) => {
+                let row = `<td class="sticky-col bg-white font-bold p-3 border-b border-r text-gray-800 shadow-[2px_0_5px_rgba(0,0,0,0.05)]">${p.name}</td>`;
+                for(let i=0; i<18; i++) {
+                    let displayVal = isMatch ? p.scores[i] : p.holeByHole[i];
+                    if (state.selectedFormat === 'SKINS' && p.holeByHole[i] === 0) displayVal = '-';
+                    if (p.scores[i] === 0) displayVal = ''; 
+                    
+                    let cellClass = "p-2 border-b text-center font-medium relative ";
+                    if (isMatch) {
+                        let team = state.matches[0].holeAssignments[i][p.id];
+                        if (team === 'A') cellClass += "bg-green-100 text-green-800 font-bold border-r-2 border-green-300";
+                        else if (team === 'B') cellClass += "bg-blue-100 text-blue-800 font-bold border-r-2 border-blue-300";
+                        else cellClass += "text-gray-400";
+                    } else if (state.selectedFormat !== 'SKINS' && p.scores[i] > 0) {
+                        let diff = p.holeByHole[i] - state.pars[i];
+                        if (diff < 0) cellClass += " text-red-600 font-bold";
+                        else if (diff > 0) cellClass += " text-blue-600";
+                    }
+                    
+                    // Add Handicap Dots
+                    let dotsHtml = '';
+                    if (displayVal !== '') {
+                        let strokesGiven = getStrokesGivenOnHole(p, i);
+                        if (strokesGiven > 0) {
+                             dotsHtml = `<div class="absolute top-0 right-1 text-[10px] leading-none text-green-800 font-black tracking-tighter" style="margin-top: 2px;">${'•'.repeat(strokesGiven)}</div>`;
+                        }
+                    }
+
+                    row += `<td class="${cellClass}">${displayVal}${dotsHtml}</td>`;
+                }
+                
+                let totalVal = (state.selectedFormat === 'SKINS' || isMatch) ? p.points : p.totalScore;
+                row += `<td class="p-2 border-b text-center font-black bg-gray-50 sticky right-0 shadow-[-2px_0_5px_rgba(0,0,0,0.05)]">${totalVal}</td>`;
+                return `<tr>${row}</tr>`;
+            }).join('');
+
+            // Add the Hole Status Row if we are in Match Play mode
+            if (isMatch) {
+                let statusRow = `<td class="sticky-col bg-gray-800 text-white font-bold p-3 border-b border-r text-xs uppercase shadow-[2px_0_5px_rgba(0,0,0,0.05)]">Match Result</td>`;
+                for (let i=0; i<18; i++) {
+                    let resultStr = state.matches[0].holeByHole[i];
+                    let bgCol = resultStr.startsWith('A') ? 'bg-green-200 text-green-900' : (resultStr.startsWith('B') ? 'bg-blue-200 text-blue-900' : 'bg-gray-200 text-gray-800');
+                    statusRow += `<td class="p-2 border-b text-center text-[10px] font-black uppercase leading-tight ${bgCol}">${resultStr}</td>`;
+                }
+                statusRow += `<td class="p-2 border-b text-center font-black bg-gray-800 text-white sticky right-0 shadow-[-2px_0_5px_rgba(0,0,0,0.05)]">-</td>`;
+                playerRows += `<tr>${statusRow}</tr>`;
+            }
+
+            appEl.innerHTML = `
+                <div class="mb-6"><h2 class="text-2xl font-bold text-green-800">Hole-by-Hole Details</h2></div>
+                <div class="bg-white rounded-xl shadow-md overflow-hidden border border-green-200 mb-8">
+                    <div class="overflow-x-auto relative"><table class="w-full text-sm border-collapse whitespace-nowrap"><thead><tr>${headerRow}</tr></thead><tbody><tr class="bg-green-50">${parRow}</tr>${playerRows}</tbody></table></div>
+                </div>
+                <div class="text-center pb-8"><button onclick="setState('RESULTS')" class="bg-green-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-green-700 shadow-md">Back to Leaderboard</button></div>
+            `;
+        }
+
+        function handleFileUpload(event) { if (event.target.files[0]) processImage(event.target.files[0]); }
+        function fileToBase64(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result); reader.onerror = error => reject(error); }); }
+        function skipToManual() { state.players = [{ id: 'player_1', name: 'Player 1', handicap: 0, scores: Array(18).fill(0) }]; setState('EDIT_PLAYERS'); }
+        function addPlayer() { state.players.push({ id: 'player_' + Date.now(), name: 'Player ' + (state.players.length + 1), handicap: 0, scores: Array(18).fill(0) }); renderEditPlayers(); }
+        function removePlayer(id) { if(state.players.length <= 1) return; state.players = state.players.filter(p => p.id !== id); renderEditPlayers(); }
+        function updatePlayer(id, field, value) { const p = state.players.find(x => x.id === id); if (p) p[field] = field === 'handicap' ? (Number(value) || 0) : value; }
+        function updateScore(playerId, holeIndex, value) { const p = state.players.find(x => x.id === playerId); if (p) p.scores[holeIndex] = Number(value) || 0; }
+        
+        function selectFormat(format) { 
+            state.selectedFormat = format; 
+            if (format === 'MATCH' || format === '6S') {
+                state.matches = []; // Reset matches so they regenerate fresh
+                setState('MATCH_SETUP'); 
+            } else { 
+                calculateResults(); 
+                setState('RESULTS'); 
+            } 
+        }
+        
+        function evaluateMatchPlay() { calculateMatchPlay(); setState('RESULTS'); }
+        
+        function cyclePlayerSide(holeIndex, playerId) {
+            const current = state.matches[0].holeAssignments[holeIndex][playerId];
+            let next = '';
+            if (current === 'A') next = 'B';
+            else if (current === 'B') next = '';
+            else next = 'A';
+            state.matches[0].holeAssignments[holeIndex][playerId] = next;
+            renderMatchSetup();
+        }
+
+        function fillDown(holeIndex) {
+            const currentAssignment = { ...state.matches[0].holeAssignments[holeIndex] };
+            for (let i = holeIndex + 1; i < 18; i++) {
+                state.matches[0].holeAssignments[i] = { ...currentAssignment };
+            }
+            renderMatchSetup();
+        }
+
+        function resetApp() { state = { view: 'UPLOAD', players: [], pars: Array(18).fill(4), strokeIndexes: Array.from({length: 18}, (_, i) => i + 1), selectedFormat: null, results: [], matches: [] }; render(); }
+        function padArray(arr, len, fill) { return arr.concat(Array(len).fill(fill)).slice(0, len); }
+
+        render();
+    </script>
+</body>
+</html>
