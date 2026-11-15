@@ -1,592 +1,964 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LOTSODOTS</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f0fdf4; color: #166534; }
-        .spinner { border: 4px solid rgba(22, 101, 52, 0.1); border-left-color: #166534; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        .sticky-col { position: sticky; left: 0; background-color: #f8fafc; z-index: 10; box-shadow: 2px 0 5px rgba(0,0,0,0.05); }
-        .sticky-header { z-index: 11; }
-        
-        input[type="number"]::-webkit-inner-spin-button, 
-        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        input[type="number"] { -moz-appearance: textfield; }
-        
-        .fade-in { animation: fadeIn 0.3s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        ::-webkit-scrollbar { height: 8px; width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb { background: #c6f6d5; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #86efac; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2D Animation & Entertainment Design — School-to-Consultant Matcher & Cost Calculator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 3px; }
+  </style>
 </head>
-<body class="min-h-screen pb-12">
+<body class="bg-slate-950 text-slate-100 min-h-screen">
 
-    <header class="bg-green-700 text-white shadow-md p-4 sticky top-0 z-50">
-        <div class="max-w-4xl mx-auto flex items-center gap-3">
-            <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <!-- Action Lines (Snap impact) -->
-                <path d="M 24 4 L 24 10" stroke-width="3" />
-                <path d="M 14 8 L 18 13" stroke-width="3" />
-                <path d="M 34 8 L 30 13" stroke-width="3" />
-                
-                <!-- Left Pencil (Eraser Side) -->
-                <g transform="rotate(-15, 18, 24)">
-                    <!-- Eraser -->
-                    <path d="M 8 18 L 5 18 A 6 6 0 0 0 5 30 L 8 30 Z" fill="currentColor" fill-opacity="0.3" />
-                    <!-- Ferrule (Metal Band) -->
-                    <rect x="8" y="18" width="5" height="12" />
-                    <line x1="10.5" y1="18" x2="10.5" y2="30" />
-                    <!-- Body -->
-                    <path d="M 13 18 L 22 18 L 24 21 L 22 24 L 24 27 L 22 30 L 13 30 Z" />
-                    <!-- Body Detail Line -->
-                    <line x1="13" y1="24" x2="21" y2="24" />
-                </g>
-                
-                <!-- Right Pencil (Point Side) -->
-                <g transform="rotate(15, 30, 24)">
-                    <!-- Body -->
-                    <path d="M 26 18 L 36 18 L 36 30 L 26 30 L 28 27 L 26 24 L 28 21 Z" />
-                    <!-- Body Detail Line -->
-                    <line x1="28" y1="24" x2="36" y2="24" />
-                    <!-- Wood Cone -->
-                    <path d="M 36 18 L 45 24 L 36 30 Z" fill="currentColor" fill-opacity="0.3" />
-                    <!-- Graphite Tip -->
-                    <path d="M 40.5 21 L 45 24 L 40.5 27 Z" fill="currentColor" />
-                </g>
-            </svg>
-            <h1 class="text-2xl font-bold tracking-wide">LOTSODOTS</h1>
+  <!-- Top Header -->
+  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-full">Grade 11–12 Admissions Playbook</span>
+          <span class="text-xs text-slate-400">2026–2028 Intake Cycle • All Costs in CAD Equivalent</span>
         </div>
-    </header>
+        <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-white mt-1">
+          School-to-Consultant Portfolio Matcher & Prep Cost Calculator
+        </h1>
+      </div>
 
-    <main id="app" class="max-w-4xl mx-auto mt-6 px-4"></main>
+      <!-- Live Budget Summary Pill -->
+      <div class="flex items-center gap-4 bg-slate-800/90 border border-slate-700 rounded-xl px-4 py-2.5 shadow-lg">
+        <div>
+          <div class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Selected Prep Stack (<span id="selectedCount">0</span> items)</div>
+          <div class="text-lg sm:text-xl font-extrabold text-emerald-400" id="totalCostDisplay">$0 CAD</div>
+        </div>
+        <button onclick="toggleBudgetModal()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition shadow">
+          View / Print Stack
+        </button>
+        <button onclick="clearStack()" class="px-2.5 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-medium rounded-lg transition" title="Clear Selected Consultants">
+          Reset
+        </button>
+      </div>
+    </div>
+  </header>
 
-    <script>
-        const apiKey = "";
-        
-        let state = {
-            view: 'UPLOAD', // UPLOAD, LOADING, EDIT_PLAYERS, EDIT_SCORES, FORMAT, MATCH_SETUP, RESULTS, SCORECARD_DETAILS
-            players: [], 
-            pars: Array(18).fill(4),
-            strokeIndexes: Array.from({length: 18}, (_, i) => i + 1),
-            selectedFormat: null, 
-            results: [],
-            matches: [] // Holds our hole-by-hole team assignments
-        };
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-        const appEl = document.getElementById('app');
+    <!-- LEFT COLUMN: 8 Flagship Schools Selector (4 cols) -->
+    <section class="lg:col-span-4 space-y-4">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300">1. Select Target School</h2>
+          <span class="text-xs text-slate-400">8 Flagship Programs</span>
+        </div>
+        <p class="text-xs text-slate-400 mb-4">
+          Click any school below to load its exact portfolio rubric, acceptance cutoffs, deadlines, and ranked list of matching portfolio consultants and ateliers.
+        </p>
 
-        function showToast(message) {
-            const toast = document.createElement('div');
-            toast.className = 'fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-2xl z-[100] fade-in font-medium max-w-sm text-center';
-            toast.innerText = message;
-            document.body.appendChild(toast);
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transition = 'opacity 0.5s ease';
-                setTimeout(() => toast.remove(), 500);
-            }, 4000);
+        <!-- Region Filter Tabs -->
+        <div class="grid grid-cols-4 gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800 mb-3 text-xs font-semibold">
+          <button onclick="filterSchoolsByRegion('ALL')" id="reg-ALL" class="py-1.5 rounded-md bg-indigo-600 text-white transition">All (8)</button>
+          <button onclick="filterSchoolsByRegion('CA')" id="reg-CA" class="py-1.5 rounded-md text-slate-400 hover:text-white transition">Canada</button>
+          <button onclick="filterSchoolsByRegion('EU')" id="reg-EU" class="py-1.5 rounded-md text-slate-400 hover:text-white transition">UK / EU</button>
+          <button onclick="filterSchoolsByRegion('US')" id="reg-US" class="py-1.5 rounded-md text-slate-400 hover:text-white transition">USA</button>
+        </div>
+
+        <!-- School Buttons List -->
+        <div id="schoolListContainer" class="space-y-2"></div>
+      </div>
+
+      <!-- Consumer Warning Callout -->
+      <div class="bg-amber-950/40 border border-amber-500/40 rounded-2xl p-4 text-xs text-amber-200/90 space-y-1.5">
+        <div class="font-bold text-amber-300 flex items-center gap-1.5 text-sm">
+          <span>⚠️</span> Important Consumer Protection Note
+        </div>
+        <p>
+          <strong>Do not enroll in CG Master Academy (CGMA):</strong> Per an official legal notice on CGMA's site, a dissolution filing dated Nov 14, 2024 is before the court and operations are under a preservation hold. Direct all online concept art prep to <strong>Brainstorm School</strong> or <strong>Concept Design Academy (CDA)</strong>.
+        </p>
+      </div>
+    </section>
+
+    <!-- RIGHT COLUMN: Dynamic School Dossier + Matched Consultants (8 cols) -->
+    <section class="lg:col-span-8 space-y-6">
+
+      <!-- Active School Dossier Banner -->
+      <div id="schoolDossierCard" class="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/50 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl">
+        <!-- Populated dynamically via JS -->
+      </div>
+
+      <!-- Recommended Instant Stack Presets for Active School -->
+      <div id="recommendedStacksBar" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl">
+        <!-- Populated dynamically via JS -->
+      </div>
+
+      <!-- Filter & Sort Bar for Consultants -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h2 class="text-base font-bold text-white flex items-center gap-2">
+            <span>2. Matched Consultants, Ateliers & Pre-College Programs</span>
+            <span id="matchedCountBadge" class="px-2 py-0.5 text-xs bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-full">0 matched</span>
+          </h2>
+          <p class="text-xs text-slate-400">Ranked by alignment with the selected school's portfolio rubric. Check any package to add it to your CAD budget calculator.</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <select id="deliveryFilter" onchange="renderConsultants()" class="bg-slate-950 border border-slate-700 text-xs text-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-indigo-500">
+            <option value="ALL">All Formats (In-Person & Online)</option>
+            <option value="GTA">Toronto / GTA In-Person</option>
+            <option value="ONLINE">Live Online / Remote</option>
+            <option value="SUMMER">Residential Summer Pre-College</option>
+          </select>
+
+          <select id="tierFilter" onchange="renderConsultants()" class="bg-slate-950 border border-slate-700 text-xs text-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-indigo-500">
+            <option value="ALL">All Match Tiers</option>
+            <option value="1">Tier 1: Primary School Anchors</option>
+            <option value="2">Tier 2: Targeted Skill Builders</option>
+            <option value="3">Tier 3: Summer Intensives</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Consultants Cards Container -->
+      <div id="consultantsContainer" class="space-y-4"></div>
+
+    </section>
+  </main>
+
+  <!-- Modal: Selected Prep Stack & Printable Summary -->
+  <div id="budgetModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-extrabold text-white">Your Custom Portfolio Prep Stack (CAD)</h3>
+          <p class="text-xs text-slate-400">Selected coaching, life drawing studios, and pre-college workshops for Grade 11–12</p>
+        </div>
+        <button onclick="toggleBudgetModal()" class="text-slate-400 hover:text-white text-xl font-bold px-2">&times;</button>
+      </div>
+      <div id="budgetModalBody" class="p-5 overflow-y-auto custom-scroll space-y-3 flex-1"></div>
+      <div class="p-5 border-t border-slate-800 bg-slate-950 flex items-center justify-between">
+        <div>
+          <div class="text-xs text-slate-400 uppercase font-semibold">Estimated Total Investment</div>
+          <div id="modalTotalCAD" class="text-2xl font-extrabold text-emerald-400">$0 CAD</div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="window.print()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-lg transition">
+            Print / Save as PDF
+          </button>
+          <button onclick="toggleBudgetModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg transition">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Exchange rates used across report: 1 USD = 1.40 CAD, 1 EUR = 1.50 CAD, 1 GBP = 1.80 CAD
+    const SCHOOLS = [
+      {
+        id: 'sheridan',
+        name: 'Sheridan College',
+        program: 'Honours Bachelor of Animation (4 Years)',
+        location: 'Oakville, Ontario, Canada',
+        region: 'CA',
+        flag: '🇨🇦',
+        tuitionCAD: '$41,984 CAD (4-Yr Domestic Total)',
+        acceptanceCutoff: '~7–8% Acceptance • 88%–91%+ Domestic Portfolio Cutoff (92–95% Int\'l)',
+        deadlines: 'Apply Early Oct • First-Round Portfolio Jan 6 • Final Deadline Feb 1',
+        portal: 'OCAS (ontariocolleges.ca) + Sheridan Applicant Portal',
+        academics: 'OSSD with 65% min avg (75–80%+ recommended for waitlist tie-breakers), ENG4U + 1 Visual Arts or Comm Tech (TGJ/TGG) + 4 U/M courses.',
+        rubricSummary: 'Strict 100-Point Technical Rubric across 5 mandatory sections: (A) 4 Live Model Figure Drawings (two 5–20m structural, two 1–3m gesture in motion), (B) Short Animation Test (24–72 frames on twos) + Character Rotation/10-Pose Sheet, (C) 4-Panel Storyboard using Sheridan\'s prompt character (20–25 pts — harshest graded!), (D) 2 Perspective Line Drawings (1 interior, 1 exterior with interacting characters), and (E) 5–7 Personal Artworks + Sketchbook PDF + 3 Sequential Hand Poses.',
+        insiderTip: 'Zero shading on life drawings, perspective, or storyboards—evaluators want transparent 3D volumetric construction ("drawing through" the ribcage, pelvis, and vanishing lines). No classroom assignments or fan art allowed.',
+        recommendedPresets: [
+          {
+            label: 'Gold-Standard GTA Commuter Stack (~$5,382 CAD)',
+            desc: 'APW 38-Week Full Program (228 hrs) + TSA March Break Intensive with Sheridan prof Enzo Avolio.',
+            pkgIds: ['apw-full', 'tsa-march']
+          },
+          {
+            label: 'Targeted Online + Local Life Drawing (~$3,452 CAD)',
+            desc: 'The Animation Tutors Complete Bundle (w/ Group Feedback) + TSA March Break + AGO Winter Teen Life Drawing.',
+            pkgIds: ['tat-group', 'tsa-march', 'ago-winter']
+          }
+        ]
+      },
+      {
+        id: 'gobelins',
+        name: 'GOBELINS Paris',
+        program: 'BA in Character Animation (ARFA - 3 Yrs) & Prépa (1 Yr)',
+        location: 'Paris, France (English & French Tracks)',
+        region: 'EU',
+        flag: '🇫🇷',
+        tuitionCAD: '~$70,200 CAD (3-Yr BA at €15,600/yr Non-EU)',
+        acceptanceCutoff: '~5–8% Acceptance • 2-Phase 100-Pt Exam (Tumblr Blog + April Zoom Interview)',
+        deadlines: 'Nov–Dec Webinars • Tumblr & App Close ~Feb 22 • Phase 1 Mar 15 • Interviews Early Apr',
+        portal: 'gobelins-school.com (€150 fee) + Dedicated Competition Tumblr Blog URL',
+        academics: 'High school diploma (OSSD) earned in current or prior 2 years + 5 administrative PDFs. Crucial Rule: Admitted students MUST present their physical original drawings in person in Paris during Week 1 of September.',
+        rubricSummary: 'Phase 1 (100 pts) requires a 60+ piece Tumblr Blog where digital work is a strict minority: (1) 30+ Observational Drawings from real life (10 documentary object volume studies, 10 live model figures, 10 urban/landscape views with living creatures), (2) 30+ Imagination Drawings (10 character in setting, 10 in action, 10 facial expressions), (3) Various Creations (30 pts), (4) Quantity compliance (10 pts). Phase 2 (100 pts) is an oral interview including a 30s video and analysis of 5 external works of art NOT created by the applicant.',
+        insiderTip: 'Start your outdoor café, zoo, and urban sketching blitz in Summer 2027 while weather is warm, work primarily on physical paper so you have the originals for September inspection in Paris, and curate fine-art/cinema/sculpture references (not mainstream anime) for your Phase 2 interview.',
+        recommendedPresets: [
+          {
+            label: 'High-Volume Analog Conservatory Stack (~$4,565 CAD)',
+            desc: 'The Animation Tutors (1-on-1 Bundle w/ GOBELINS alumni insights) + APW Life Drawing Level Up + TSA Teen Life Drawing.',
+            pkgIds: ['tat-1on1', 'apw-8wk', 'tsa-teen']
+          },
+          {
+            label: 'Paris Immersion + Mentorship Stack (~$13,135 CAD)',
+            desc: 'GOBELINS Paris Summer Camp in France (€6,490) + The Animation Tutors 1-on-1 Bundle.',
+            pkgIds: ['gobelins-camp', 'tat-1on1']
+          }
+        ]
+      },
+      {
+        id: 'taw',
+        name: 'The Animation Workshop (TAW)',
+        program: 'BA in Character Animation or Computer Graphic Arts (3.5 Yrs)',
+        location: 'Viborg, Denmark (100% English Instruction)',
+        region: 'EU',
+        flag: '🇩🇰',
+        tuitionCAD: '~$72,963 CAD (363,000 DKK Total over 3.5 Yrs)',
+        acceptanceCutoff: '7.7% Character Animation (25/324) • 17.8% CG Arts (26/146)',
+        deadlines: 'Portal Opens Feb 1 • Hard Cutoff Mar 15 (12:00 Noon CET) • Tests/Interview May • Offers July 28',
+        portal: 'optagelse.dk (Area Code 50610) + TAW Online Portfolio Portal + Unlisted YouTube/Vimeo',
+        academics: 'OSSD + English B equivalent + official grade sheets from last 3 years + signed Signature Page.',
+        rubricSummary: 'Enforces two golden rules: (1) Every category requires Process Material (Thumbnails/Sketches) alongside Final Drawings, and process does NOT count toward final totals; (2) Exceeding page limits is penalized. Character Animation (8 categories): 3-min Unlisted YouTube Intro, 10–15 figure croquis (max 2-min poses!) + 10–15 street/animal sketches, 14 final drawings of Norse myth Skadi (5 expressions, 5 poses, 4-view turnaround), 6–8 movement drawings, 8–10 multi-character interaction drawings, 10–12 panel storyboard, 2–3 non-3D perspective drawings, max 5 optional pages.',
+        insiderTip: 'If Elizabeth leans toward concept art, visual development, and painted backgrounds, apply to TAW\'s Computer Graphic Arts (CGA) track (17.8% acceptance vs 7.7%)—or apply to both tracks simultaneously!',
+        recommendedPresets: [
+          {
+            label: 'Danish Atelier & Croquis Stack (~$3,930 CAD)',
+            desc: 'The Animation Tutors 12-Session 1-on-1 (TAW Alumni) + APW Gesture Drawing + CDA Analytical Figure.',
+            pkgIds: ['tat-12priv', 'apw-8wk', 'cda-10wk']
+          },
+          {
+            label: 'TAW CG Arts / Worldbuilding Stack (~$3,705 CAD)',
+            desc: 'Brainstorm Environment Sketching + CDA Intro to Perspective + The Animation Tutors Base Bundle.',
+            pkgIds: ['brainstorm-10wk', 'cda-10wk', 'tat-base']
+          }
+        ]
+      },
+      {
+        id: 'seneca',
+        name: 'Seneca Polytechnic',
+        program: 'Advanced Diploma in Animation (ANI - 3 Yrs: 2D & VisDev Streams)',
+        location: 'Toronto, Ontario, Canada (York Campus)',
+        region: 'CA',
+        flag: '🇨🇦',
+        tuitionCAD: '~$20,114 – $24,000 CAD (3-Yr Domestic Total)',
+        acceptanceCutoff: '~15–20% Acceptance • 5-Piece Structural Portfolio Gatekeeper',
+        deadlines: 'Apply Early Oct • Equal Consideration Deadline Feb 1 • Confirm May 1',
+        portal: 'OCAS (ontariocolleges.ca) + Seneca Applicant Portal',
+        academics: 'OSSD with Grade 12 English (ENG4U or ENG4C). Unified Year 1 before specializing in 2D Animation or Visual Development in Years 2–3.',
+        rubricSummary: 'Requires exactly FIVE (5) structural pieces: (1) One full-body human life drawing from observation, (2) One observational drawing of your own hand, (3) One solid everyday household object study (e.g., mixer, coffee grinder, boot), (4) One two-point perspective interior view of a room in your house, and (5) One personal artwork of choice.',
+        insiderTip: 'Because evaluators only judge 5 images, a single weak ellipse or broken vanishing point stands out immediately. Four of the five pieces come straight out of your Sheridan prep; spend one dedicated weekend constructing a complex household object with transparent cross-contour lines.',
+        recommendedPresets: [
+          {
+            label: 'Focused 5-Piece Domestic Stack (~$1,780 CAD)',
+            desc: 'PortPrep Personal Mentorship (features Seneca guest prof Werner Zimmermann) + APW 8-Wk Life Drawing + LoveFunArt Layout.',
+            pkgIds: ['portprep-mentor', 'apw-8wk', 'lfa-layout']
+          }
+        ]
+      },
+      {
+        id: 'aub',
+        name: 'Arts University Bournemouth (AUB)',
+        program: 'BA (Hons) Animation Production (3 Years — UCAS W615)',
+        location: 'Poole / Bournemouth, Dorset, England, UK',
+        region: 'EU',
+        flag: '🇬🇧',
+        tuitionCAD: '~$107,730 CAD (3-Yr Int\'l Tuition at ~£19,950/yr)',
+        acceptanceCutoff: '~25–35% Acceptance •Ranked #2 Globally for 2D Animation (The Rookies)',
+        deadlines: 'UCAS Equal Consideration Jan 13 • Public Portfolio URL due within 30 days of AUB email',
+        portal: 'UCAS (Code W615, Inst A66) + Public Portfolio URL (Flickr / Wix / YouTube — No Passwords)',
+        academics: '104–120 UCAS Tariff points (OSSD with strong ~75–80%+ Grade 12 U/M average) + UCAS Personal Statement + 1 Reference. No interview required.',
+        rubricSummary: 'Do not confuse AUB (W615 — 2D hand-drawn, traditional light-boxes, VisDev, stop-motion) with neighboring Bournemouth University NCCA (3D/VFX). AUB requests a public, password-free link (Flickr/Wix) showcasing observational life drawing, sketchbooks, works-in-progress, character turnarounds, environment layouts, and storyboards/animatics.',
+        insiderTip: 'AUB evaluators love seeing annotated design process—show how an initial rough observational sketch evolved into character silhouettes, colour tests, and a final storyboard sequence.',
+        recommendedPresets: [
+          {
+            label: 'UK UCAS Portfolio Curation Stack (~$2,562 CAD)',
+            desc: 'The Animation Tutors Base Bundle + PortPrep Mentorship/Curation + TSA March Break Life Drawing.',
+            pkgIds: ['tat-base', 'portprep-mentor', 'tsa-march']
+          }
+        ]
+      },
+      {
+        id: 'calarts',
+        name: 'CalArts',
+        program: 'BFA in Character Animation (4 Years)',
+        location: 'Valencia (Los Angeles County), California, USA',
+        region: 'US',
+        flag: '🇺🇸',
+        tuitionCAD: '~$341,073 CAD Tuition ($455k CAD w/ Living before Merit Aid)',
+        acceptanceCutoff: '~3–4% Acceptance • #1 Hollywood Showrunner & 2D/Story Feeder',
+        deadlines: 'Early/Preferred Dec 1 ($65 fee) • Regular Final Jan 5 ($85 fee) • Decisions Late Feb/Mar',
+        portal: 'CalArts Application Portal Directly (NO SlideRoom, NO composite PDFs)',
+        academics: 'OSSD (min 2.0 GPA), 500–1,000 word Artist Statement, Letters of Recommendation. Must have at least 1 full year of live-model figure drawing experience.',
+        rubricSummary: 'Four mandatory parts uploaded slide-by-slide: (1) Min 15 Observational Drawings from direct physical life (live human models + café/street/animal/interior/exterior sketches — DO NOT erase construction lines!), (2) Other Creative Work (storyboards, animatics, character designs, paintings + social/website URL), (3) 10-Minute Unedited Silent Video Flip-Through of ONE complete bound physical sketchbook (no voiceover, no music, no cuts), and (4) 30–90 Second Unscripted Video Introduction.',
+        insiderTip: 'Never look at "Accepted CalArts Sketchbook" videos on YouTube to copy their style—faculty explicitly warn against formulaic sketchbooks. Fill a real bound sketchbook from June to November 2027 with raw film gags, café observations, and genuine story obsessions.',
+        recommendedPresets: [
+          {
+            label: 'Hollywood Feeder Residential Stack (~$15,908 CAD)',
+            desc: 'CSSSA 4-Week Summer Animation Residency in California + Project City Annual Storytelling Membership.',
+            pkgIds: ['csssa-summer', 'project-city']
+          },
+          {
+            label: 'Online Pasadena Director Stack (~$4,548 CAD)',
+            desc: 'CDA Gesture Drawing for Animation + Project City + The Animation Tutors Group Bundle + AGO Teen Life Drawing.',
+            pkgIds: ['cda-10wk', 'project-city', 'tat-group', 'ago-winter']
+          }
+        ]
+      },
+      {
+        id: 'artcenter',
+        name: 'ArtCenter College of Design',
+        program: 'BS in Entertainment Design (Concept or Animation) / BFA Illustration (4 Yrs)',
+        location: 'Pasadena, California, USA',
+        region: 'US',
+        flag: '🇺🇸',
+        tuitionCAD: '~$326,194 CAD Tuition ($506k CAD w/ Living before Merit Aid)',
+        acceptanceCutoff: '~20–25% for Ent. Design (Overall school ~70%, but portfolio gates major)',
+        deadlines: 'Priority Deadline Feb 1 (Fall) • Note: Seat only held once $300 deposit is paid',
+        portal: 'ArtCenter Admissions Portal (Major-Specific Upload) + Short Answer Essay',
+        academics: 'OSSD + official transcripts + high school arithmetic proficiency + Entertainment Design Short Answer Essay.',
+        rubricSummary: 'Three tailored pathways: (1) BS Entertainment Design — Concept Track: 20–25 pages presenting 2–3 complete story worlds (environments, characters, vehicles, props) where every project shows Research/Inspiration boards + extensive Process/Ideation thumbnails + Final Renderings. (2) BS Entertainment Design — Animation Track: Built around 1 original story (summary, 2+ characters, 5+ key story moment beats, and storyboard/animatic with sound). (3) BFA Illustration — Entertainment Arts: 8–12 live figure drawings, 8–10 narrative/environment paintings, 5–6 sketchbook pages (best for pure 2D VisDev painters!).',
+        insiderTip: 'ArtCenter rejects portfolios that only show polished final paintings. At least 50% of your 20–25 pages must be messy, structural ideation thumbnails showing 8–10 different silhouette variations before you picked the final design.',
+        recommendedPresets: [
+          {
+            label: 'Pasadena Concept Worldbuilding Stack (~$3,675 CAD)',
+            desc: 'Brainstorm Foundation/Design Sketching + Brainstorm Environment/Prop Course + CDA Intro to Perspective + Schoolism 1-on-1.',
+            pkgIds: ['brainstorm-10wk', 'brainstorm-visdev', 'cda-10wk', 'schoolism-1on1']
+          }
+        ]
+      },
+      {
+        id: 'ringling',
+        name: 'Ringling College of Art and Design',
+        program: 'BFA in Entertainment Design / BFA in 2D Character Animation (4 Yrs)',
+        location: 'Sarasota, Florida, USA',
+        region: 'US',
+        flag: '🇺🇸',
+        tuitionCAD: '~$341,773 CAD Tuition ($457k CAD w/ Living; 95% receive institutional aid)',
+        acceptanceCutoff: '~55–62% Ent. Design / 2D Anim. (vs ~18% for 3D Computer Animation)',
+        deadlines: 'Early Action Nov 1 (Priority Aid & Admission!) • Regular Decision Jan 15',
+        portal: 'Common App ($70 fee) + SlideRoom Portfolio (10–20 pieces) + WES Transcript Evaluation',
+        academics: 'OSSD (min 2.0 GPA; admitted avg 3.6–3.9 GPA) + 1–2 teacher recommendations. Crucial Rule: Canadian transcripts MUST be evaluated via WES (World Education Services) — order in early October of Grade 12!',
+        rubricSummary: 'Portfolio carries 60%–70% of admission weight (10–20 pieces on SlideRoom). Ringling requires zero prior 3D/animation software knowledge; instead, reviewers prioritize direct real-life observational drawings (live human figures, still lifes, interiors, street scenes—never from photos) paired with original concept art, character designs, and visual storytelling.',
+        insiderTip: 'Attending Ringling\'s 4-week residential PreCollege in Sarasota between Grade 11 and 12 (June 20 – July 17, 2027) earns 3 college credits and gives Elizabeth studio pieces critiqued directly by Ringling faculty ahead of the Nov 1 Early Action deadline.',
+        recommendedPresets: [
+          {
+            label: 'Sarasota PreCollege + Early Action Stack (~$11,310 CAD)',
+            desc: 'Ringling 4-Week Residential PreCollege in Florida ($7,700 USD) + PortPrep 6-Session SlideRoom Curation.',
+            pkgIds: ['ringling-precollege', 'portprep-mentor']
+          },
+          {
+            label: 'Remote Observational & Concept Stack (~$5,520 CAD)',
+            desc: 'APW Design Program (Apr–Oct 2027) + CDA Analytical Figure Drawing.',
+            pkgIds: ['apw-design', 'cda-10wk']
+          }
+        ]
+      }
+    ];
+
+    const CONSULTANTS = [
+      {
+        id: 'apw',
+        name: 'Animation Portfolio Workshop (APW)',
+        url: 'https://animationportfolioworkshop.com',
+        location: 'Toronto, ON (In-Person) & Live Zoom Online',
+        delivery: 'GTA',
+        agePolicy: 'Admits ages 14+ into live-model figure drawing & portfolio programs.',
+        credentials: 'Founded in 1999 by former Sheridan Animation instructors Gerard Sternik & Vincent Peets.',
+        summary: 'The gold-standard 228-hour technical drawing bootcamp in Toronto. Splits every full day into 3 hours of live-model Figure Drawing and 3 hours of Drawing for Animation (solid 3D object construction, 2-point perspective rooms, character rotation, hands, and storyboarding).',
+        schoolMatch: {
+          sheridan: { tier: 1, rationale: 'Built specifically around Sheridan\'s 100-point rubric by former Sheridan Animation faculty.' },
+          seneca: { tier: 1, rationale: 'Drills every single one of Seneca\'s 5 required structural pieces (figure, hand, object, 2-pt room).' },
+          gobelins: { tier: 1, rationale: 'Produces massive analog volume of live figure and documentary object volume studies for the 60-piece Tumblr blog.' },
+          taw: { tier: 2, rationale: 'Strong 2-minute gesture croquis and non-3D perspective construction training.' },
+          aub: { tier: 2, rationale: 'Builds the observational figure and layout core for AUB\'s Flickr/Wix portfolio.' },
+          calarts: { tier: 2, rationale: 'Fulfills CalArts\' mandatory 1-year live figure drawing baseline with visible construction lines.' },
+          artcenter: { tier: 2, rationale: 'APW Design Program (Apr–Oct) covers structural perspective and prop/environment construction.' },
+          ringling: { tier: 2, rationale: 'Provides the 8–10 direct real-life observational figure and still-life drawings Ringling prioritizes.' }
+        },
+        packages: [
+          { id: 'apw-full', name: 'Full 38-Day (228-Hr) Portfolio Program (Spring–Feb or Fall–Jan)', costCAD: 4850, displayCost: '$4,700–$5,000 CAD' },
+          { id: 'apw-design', name: 'APW Design Program (Apr 13 – Oct 14, 2027, Tue/Thu 6–9pm)', costCAD: 4400, displayCost: '$4,400 CAD (+HST)' },
+          { id: 'apw-lite', name: 'APW Lite Program (Sept – Feb Condensed)', costCAD: 3150, displayCost: '$3,150 CAD' },
+          { id: 'apw-8wk', name: '8-Week Evening Course (Jan–Apr 2027: Life Drawing, Anatomy, Gesture, or Storyboarding)', costCAD: 650, displayCost: '$650 CAD / course' },
+          { id: 'apw-1on1', name: 'Private 1-on-1 Tutoring / 2-Hr Sheridan Clinic (Gerard Sternik / Vince Peets)', costCAD: 150, displayCost: '$90–$150 CAD / session' }
+        ]
+      },
+      {
+        id: 'tat',
+        name: 'The Animation Tutors',
+        url: 'https://theanimationtutors.ca',
+        location: 'Live Online (Evenings EDT) & 1-on-1 Mentorship',
+        delivery: 'ONLINE',
+        agePolicy: 'Open to all high school students; includes parent progress updates in top tier.',
+        credentials: 'Multi-tutor team featuring graduates & guest presenters from Sheridan, GOBELINS Paris, TAW Denmark, CalArts, and Emily Carr.',
+        summary: 'The best all-in-one consultancy when applying simultaneously to Sheridan AND international conservatories (GOBELINS, TAW, CalArts, AUB). Combines weekly Sunday portfolio lectures, Monday online life drawing, Thursday animation workshops, and custom school-by-school task tracking.',
+        schoolMatch: {
+          sheridan: { tier: 1, rationale: 'Runs from October to late February timed directly to the Sheridan submission deadline, with Sheridan alumni mentors.' },
+          gobelins: { tier: 1, rationale: 'Features direct GOBELINS alumni mentorship, Tumblr blog curation, and Phase 2 oral interview prep.' },
+          taw: { tier: 1, rationale: 'Includes TAW Viborg alumni mentors who guide students through the Skadi character prompt and 8-category process rules.' },
+          aub: { tier: 1, rationale: 'Helps curate and sequence a multi-school portfolio into a clean public gallery for AUB.' },
+          calarts: { tier: 1, rationale: 'Includes CalArts student/alumni presentations and sketchbook/storyboarding mentorship.' },
+          seneca: { tier: 1, rationale: 'Covers all 5 Seneca structural pieces seamlessly alongside Sheridan prep.' },
+          artcenter: { tier: 2, rationale: 'Summer 8-week "Designing a World for Your Story" course builds foundational worldbuilding packets.' },
+          ringling: { tier: 2, rationale: 'Provides 1-on-1 SlideRoom curation and free initial portfolio assessment.' }
+        },
+        packages: [
+          { id: 'tat-base', name: 'Complete Animation Portfolio Bundle — Version 1 Base (Oct–Feb, 5 Mos)', costCAD: 1500, displayCost: '$1,500 CAD' },
+          { id: 'tat-group', name: 'Complete Bundle — Version 2 w/ 2x Weekly Group Feedback', costCAD: 2600, displayCost: '$2,600 CAD' },
+          { id: 'tat-1on1', name: 'Complete Bundle — Version 3 w/ Group + 4x 1-on-1 Mentorship Sessions', costCAD: 3400, displayCost: '$3,400 CAD' },
+          { id: 'tat-full', name: 'Complete Bundle — Version 4 Full (12x 1-on-1s + Monthly Parent Calls)', costCAD: 4600, displayCost: '$4,600 CAD' },
+          { id: 'tat-12priv', name: 'Standalone Private 1-on-1 Mentorship (12 Sessions)', costCAD: 2160, displayCost: '$2,160 CAD (16 for $2,640)' },
+          { id: 'tat-world', name: 'Summer 8-Week Course: Designing a World for Your Story', costCAD: 500, displayCost: '$500 CAD' }
+        ]
+      },
+      {
+        id: 'portprep',
+        name: 'PortPrep (Oakville)',
+        url: 'https://portprep.com',
+        location: 'Oakville, ON (Near Sheridan Trafalgar) & Online',
+        delivery: 'GTA',
+        agePolicy: 'Dedicated Youth & High School Mentorship tracks.',
+        credentials: 'Directed by Karen Kesteloot, with Sheridan Animation grad Garth Laidlaw and Seneca Animation Guest Prof Werner Zimmermann.',
+        summary: 'Boutique Oakville/online coaching studio specializing in 3D structural drawing from observation, hand and figure anatomy, perspective layout, and individualized portfolio review packages.',
+        schoolMatch: {
+          sheridan: { tier: 1, rationale: 'Located right in Oakville with Sheridan Animation alumnus Garth Laidlaw directing the animation track.' },
+          seneca: { tier: 1, rationale: 'Features Seneca Animation guest professor Werner Zimmermann teaching hand and figure anatomy.' },
+          aub: { tier: 1, rationale: 'Ideal 2-to-6 session portfolio review service to curate your Wix/Flickr gallery for UK UCAS.' },
+          ringling: { tier: 1, rationale: 'Strong structural observational drawing and SlideRoom curation ahead of Ringling\'s Nov 1 Early Action deadline.' },
+          calarts: { tier: 2, rationale: 'Teaches storytelling, character design, and observational sketchbook habits.' },
+          gobelins: { tier: 2, rationale: 'Builds strong traditional observational and anatomical drawing foundations.' },
+          taw: { tier: 2, rationale: 'Covers worldbuilding character design and background layout.' },
+          artcenter: { tier: 2, rationale: 'Karen Kesteloot\'s architectural/interior spatial drawing pairs well with environment design.' }
+        },
+        packages: [
+          { id: 'portprep-mentor', name: 'Personal Portfolio Mentorship Package', costCAD: 530, displayCost: 'From $530 CAD' },
+          { id: 'portprep-review', name: 'Intensive Portfolio Review (2, 4, or 6 Sessions)', costCAD: 280, displayCost: 'From $190–$380 CAD' },
+          { id: 'portprep-monthly', name: 'Youth Monthly Mentorship', costCAD: 250, displayCost: '$250 CAD / month' }
+        ]
+      },
+      {
+        id: 'cda',
+        name: 'Concept Design Academy (CDA)',
+        url: 'https://www.conceptdesignacad.com',
+        location: 'Pasadena, CA (Live Synchronous Zoom Online)',
+        delivery: 'ONLINE',
+        agePolicy: 'Minors aged 16–17 ARE permitted in live online figure drawing classes with signed parental Minor Consent Form!',
+        credentials: 'The premier Pasadena feeder atelier to ArtCenter and CalArts, taught by working studio leads (Kevin Chen, Andrew Cano, Robert St. Pierre).',
+        summary: 'Delivers authentic ArtCenter and CalArts-level foundation training from home via 10-week live Zoom studio classes in Analytical Figure Drawing, Dynamic Sketching (Vis Com 1), Gesture Drawing for Animation, and Perspective.',
+        schoolMatch: {
+          artcenter: { tier: 1, rationale: 'Located in Pasadena; Vis Com 1 Dynamic Sketching and Intro to Perspective mirror ArtCenter\'s exact curriculum.' },
+          calarts: { tier: 1, rationale: 'Gesture Drawing for Animation (Adam Dix) and Analytical Figure Drawing (Kevin Chen) build elite CalArts figure slides.' },
+          taw: { tier: 1, rationale: 'Ideal for TAW\'s Computer Graphic Arts (CGA) and Character Animation structural figure/perspective categories.' },
+          ringling: { tier: 1, rationale: 'Trains students to draw with Hollywood concept-art mileage for Ringling\'s Entertainment Design BFA.' },
+          sheridan: { tier: 2, rationale: 'Intro to Perspective and Analytical Figure give applicants a massive edge on Sheridan Sections A and D.' },
+          gobelins: { tier: 2, rationale: 'Strengthens structural volume and dynamic pose drawing.' },
+          aub: { tier: 2, rationale: 'Elevates environment layout and figure construction quality.' },
+          seneca: { tier: 2, rationale: 'Great for mastering 2-point perspective and solid object construction.' }
+        },
+        packages: [
+          { id: 'cda-10wk', name: '10-Week Live Online Course (Analytical Figure, Gesture for Animation, Dynamic Sketching, or Perspective)', costCAD: 1120, displayCost: '~$1,050–$1,190 CAD ($750–$850 USD)' },
+          { id: 'cda-bundle2', name: '2-Course Term Bundle ($100 USD Multi-Course Discount)', costCAD: 2100, displayCost: '~$2,100 CAD ($1,500 USD)' }
+        ]
+      },
+      {
+        id: 'brainstorm',
+        name: 'Brainstorm School',
+        url: 'https://brainstormschool.com',
+        location: 'Pasadena, CA (Live Zoom Online — Capped at 10–20 Students)',
+        delivery: 'ONLINE',
+        agePolicy: 'Open to motivated high school juniors/seniors building entertainment design & storyboard portfolios.',
+        credentials: 'Taught by senior concept artists and storyboard directors from Riot, Sony, Disney, and ILM.',
+        summary: 'The #1 online academy for building multi-page Entertainment Design worldbuilding packets (characters, props, vehicles, environments) and cinematic action/adventure storyboards.',
+        schoolMatch: {
+          artcenter: { tier: 1, rationale: 'Directly mirrors ArtCenter\'s 20–25 page Entertainment Design Concept & Animation Track requirements (Research + Ideation Thumbnails + Renders).' },
+          ringling: { tier: 1, rationale: 'Top choice for building original worldbuilding and prop/environment sheets for Ringling\'s BFA in Entertainment Design.' },
+          taw: { tier: 1, rationale: 'Unbeatable preparation for TAW\'s Computer Graphic Arts (CGA) background design and character concept categories.' },
+          calarts: { tier: 2, rationale: 'Action Adventure Storyboarding (SBA) and Intermediate Storyboarding (SB2) sharpen CalArts sequential storytelling.' },
+          sheridan: { tier: 2, rationale: 'Perspective Bootcamp (PBC) and Storyboarding courses directly boost Sheridan Sections C and D.' },
+          gobelins: { tier: 2, rationale: 'Helps develop imaginative characters in settings and action.' },
+          aub: { tier: 2, rationale: 'Adds professional concept art and visual development process sheets to AUB portfolios.' },
+          seneca: { tier: 2, rationale: 'Prepares students aiming for Seneca\'s Visual Development stream.' }
+        },
+        packages: [
+          { id: 'brainstorm-10wk', name: '10-Week Foundation / Perspective Course (FND Sketching or PBC Perspective Bootcamp)', costCAD: 1050, displayCost: '~$945–$1,120 CAD ($675–$800 USD)' },
+          { id: 'brainstorm-visdev', name: '10-Week Concept / VisDev / Storyboard Course (WB1 Environment, PD1 Props, SB2 Storyboarding, or Portfolio Dev)', costCAD: 1120, displayCost: '~$910–$1,155 CAD ($650–$825 USD)' },
+          { id: 'brainstorm-flash', name: '5-Week Shape Design Flash Course (SD)', costCAD: 245, displayCost: '~$245 CAD ($175 USD)' }
+        ]
+      },
+      {
+        id: 'tsa',
+        name: 'Toronto School of Art (TSA) — Youth & Animation Intensives',
+        url: 'https://tsa-art.com',
+        location: 'Downtown Toronto, ON (24 Ryerson Ave — In-Person)',
+        delivery: 'GTA',
+        agePolicy: 'Dedicated Teen (14–17) & March Break Animation courses (solves the 18+ adult drop-in restriction!).',
+        credentials: 'March Break Intensive taught by Enzo Avolio (veteran Disney/Warner Bros. animator & Sheridan BA Animation Character Design instructor).',
+        summary: 'Provides crucial in-person, live-model figure drawing studio hours in downtown Toronto specifically tailored for under-18 high school animation applicants (models wear athletic attire).',
+        schoolMatch: {
+          sheridan: { tier: 1, rationale: 'Taught directly by Sheridan BA Animation instructor Enzo Avolio; drills exact life drawing poses needed for Section A.' },
+          seneca: { tier: 1, rationale: 'Produces the full-body observational life drawing required for Seneca Piece #1.' },
+          gobelins: { tier: 1, rationale: 'Generates authentic physical charcoal/pencil live figure drawings for GOBELINS\' Paris inspection.' },
+          calarts: { tier: 1, rationale: 'Counts toward CalArts\' 1-year live model figure drawing expectation.' },
+          taw: { tier: 1, rationale: 'Builds live human croquis and long-pose figure studies for TAW Category 2.' },
+          aub: { tier: 1, rationale: 'Supplies strong traditional life drawing sheets for AUB\'s portfolio.' },
+          ringling: { tier: 1, rationale: 'Delivers authentic live-model figure drawings valued by Ringling reviewers.' },
+          artcenter: { tier: 2, rationale: 'Fulfills live figure requirements for ArtCenter\'s BFA Illustration: Entertainment Arts track.' }
+        },
+        packages: [
+          { id: 'tsa-march', name: '1-Week March Break Intensive: Life Drawing for Animation (w/ Sheridan Prof Enzo Avolio)', costCAD: 532, displayCost: '$532 CAD (incl. $110 model fee)' },
+          { id: 'tsa-teen', name: 'Life Drawing for Teens (Ages 14–17 Multi-Week / Summer Studio)', costCAD: 515, displayCost: '$515 CAD (incl. $110 model fee)' }
+        ]
+      },
+      {
+        id: 'ago',
+        name: 'Art Gallery of Ontario (AGO) — Youth Studio',
+        url: 'https://ago.ca/learn/courses/children-youth',
+        location: 'Downtown Toronto, ON (317 Dundas St W — In-Person)',
+        delivery: 'GTA',
+        agePolicy: 'Explicitly designed for Ages 14–18.',
+        credentials: 'Taught in the AGO\'s professional studio classrooms in downtown Toronto.',
+        summary: 'Runs an 8-week Sunday afternoon Life Drawing course for ages 14–18 starting January 10, 2027—perfect for starting Elizabeth\'s 1-year live figure drawing clock immediately in Grade 11.',
+        schoolMatch: {
+          calarts: { tier: 1, rationale: 'Starts the mandatory 1-year live figure drawing clock in January 2027 (Jan 10 – Mar 7, 2027).' },
+          sheridan: { tier: 1, rationale: 'Affordable downtown Toronto live-model practice for Grade 11 winter.' },
+          gobelins: { tier: 1, rationale: 'Builds physical analog life drawings and museum observational studies.' },
+          taw: { tier: 2, rationale: 'Provides consistent weekly live model practice.' },
+          seneca: { tier: 2, rationale: 'Builds foundational full-body observational drawing skills.' },
+          aub: { tier: 2, rationale: 'Adds museum studio figure studies to your portfolio.' },
+          ringling: { tier: 2, rationale: 'Great source of direct observational figure work.' },
+          artcenter: { tier: 2, rationale: 'Useful for the Illustration Entertainment Arts figure requirement.' }
+        },
+        packages: [
+          { id: 'ago-winter', name: '8-Week Life Drawing – Winter (Ages 14–18, Sundays Jan 10 – Mar 7, 2027, 1–3pm)', costCAD: 320, displayCost: '~$280–$350 CAD' }
+        ]
+      },
+      {
+        id: 'projectcity',
+        name: 'Project City',
+        url: 'https://app.projectcity.tv',
+        location: 'Online Community & Workshops',
+        delivery: 'ONLINE',
+        agePolicy: 'Open to all ages.',
+        credentials: 'Run by top Hollywood TV/feature directors & board artists (Rad Sechrist, Ethan Becker, Louis Gonzales, Tono Tardon).',
+        summary: 'High-energy online storytelling, action boarding, and short-film community. Ideal for learning how working Los Angeles showrunners pitch gags, stage 4-to-12 panel storyboards, and fill lively sketchbooks.',
+        schoolMatch: {
+          calarts: { tier: 1, rationale: 'Instructors share CalArts\' exact DNA of expressive storyboarding, gag writing, and personal filmmaking.' },
+          sheridan: { tier: 1, rationale: 'Directly sharpens staging, shot variety, and acting for Sheridan\'s 20–25 pt Storyboard section.' },
+          taw: { tier: 1, rationale: 'Great for TAW\'s Character Interaction (Cat. 5) and 10–12 panel Storytelling (Cat. 6) prompts.' },
+          artcenter: { tier: 1, rationale: 'Essential for ArtCenter\'s Entertainment Design Animation Track (key story moments + animatic).' },
+          gobelins: { tier: 2, rationale: 'Boosts character acting, expressions, and dynamic posing.' },
+          aub: { tier: 2, rationale: 'Helps produce strong animatics for AUB\'s showreel.' },
+          ringling: { tier: 2, rationale: 'Adds narrative punch to 2D Character Animation portfolios.' },
+          seneca: { tier: 2, rationale: 'Helpful for the personal choice storytelling piece.' }
+        },
+        packages: [
+          { id: 'project-city', name: 'Story Sprint Annual Membership (or $45 USD per individual workshop)', costCAD: 508, displayCost: '~$508 CAD ($363 USD/yr or $33 USD/mo)' }
+        ]
+      },
+      {
+        id: 'schoolism',
+        name: 'Schoolism (Imaginism Studios Toronto)',
+        url: 'https://schoolism.com/1-on-1',
+        location: 'Toronto-Founded / Global Online 1-on-1s & Subscriptions',
+        delivery: 'ONLINE',
+        agePolicy: 'Open to all students; bookable on-demand.',
+        credentials: 'Founded by Bobby Chiu in Toronto; 1-on-1 critiques with Sony/Riot/Pixar Art Directors (Angela Sung, Airi Pan, etc.).',
+        summary: 'Allows you to book individual 1-on-1 portfolio review and paint-over sessions with senior Hollywood/AAA concept artists and visual development directors right before submitting your portfolio.',
+        schoolMatch: {
+          artcenter: { tier: 1, rationale: 'Book 1-on-1 critiques with Riot/Sony concept artists (Airi Pan, Angela Sung) to polish your 20–25 page worldbuilding packet.' },
+          calarts: { tier: 1, rationale: 'Get direct feedback from Sony/Netflix animation art directors on your VisDev and story slides.' },
+          ringling: { tier: 1, rationale: 'High-impact final review before locking your SlideRoom submission.' },
+          sheridan: { tier: 2, rationale: 'Toronto-based Imaginism roots; great for polishing personal artwork and perspective layouts.' },
+          taw: { tier: 2, rationale: 'Strong feedback for TAW CGA digitally painted backgrounds and characters.' },
+          gobelins: { tier: 2, rationale: 'Helpful for curating your strongest personal creations.' },
+          aub: { tier: 2, rationale: 'Sharpens visual development presentation.' },
+          seneca: { tier: 2, rationale: 'On-demand critique for your 5 structural pieces.' }
+        },
+        packages: [
+          { id: 'schoolism-1on1', name: '2x On-Demand 1-on-1 Industry Pro Portfolio Critiques + Annual Video Sub', costCAD: 720, displayCost: '~$720 CAD (~$300 USD/yr sub + 1-on-1s)' }
+        ]
+      },
+      {
+        id: 'wingedcanvas',
+        name: 'Winged Canvas & LoveFunArt (GTA)',
+        url: 'https://www.wingedcanvas.com',
+        location: 'Markham / Richmond Hill / North York, ON & Live Online',
+        delivery: 'GTA',
+        agePolicy: 'Dedicated Teen Mentorship (1:12 max ratio).',
+        credentials: 'GTA art mentorship studios specializing in animation layout, spatial thinking, and custom portfolio gap assignments.',
+        summary: 'Provides structured weekly accountability for GTA teens needing step-by-step guidance on 2-point perspective interiors/exteriors, character turnarounds, and digital illustration.',
+        schoolMatch: {
+          sheridan: { tier: 1, rationale: 'Drills Sheridan\'s interior/exterior perspective layouts and character rotation sheets.' },
+          seneca: { tier: 1, rationale: 'Focused coaching on Seneca\'s 2-point room perspective and household object study.' },
+          aub: { tier: 2, rationale: 'Helps organize digital portfolio websites and process pages.' },
+          ringling: { tier: 2, rationale: 'Supports balanced 10–20 piece SlideRoom portfolios.' },
+          calarts: { tier: 2, rationale: 'Good for building consistent weekly sketchbook output.' },
+          gobelins: { tier: 2, rationale: 'Supports urban/interior spatial layout drawing.' },
+          taw: { tier: 2, rationale: 'Helps with non-3D perspective and character sheets.' },
+          artcenter: { tier: 2, rationale: 'Builds foundational environment layout skills.' }
+        },
+        packages: [
+          { id: 'lfa-layout', name: 'Term Art Mentorship / Animation Layout & Spatial Thinking Module', costCAD: 600, displayCost: '~$550–$650 CAD / term' }
+        ]
+      },
+      {
+        id: 'nma-bloop',
+        name: 'New Masters Academy (NMA) + Bloop Animation',
+        url: 'https://coaching.nma.art',
+        location: 'On-Demand Online + Bi-Weekly 1-on-1 Coaching',
+        delivery: 'ONLINE',
+        agePolicy: 'Open to all ages.',
+        credentials: 'Steve Huston & Glenn Vilppu constructive anatomy library + Bloop\'s 30-lesson Toon Boom Storyboard Pro course.',
+        summary: 'Cost-effective self-paced foundation stack: NMA teaches classical constructive anatomy ("drawing through" the figure like Glenn Vilppu), while Bloop teaches Toon Boom Storyboard Pro and animation timing.',
+        schoolMatch: {
+          sheridan: { tier: 2, rationale: 'Bloop\'s animation/storyboarding foundations help students quickly master Sheridan\'s 24–72 frame test and 4-panel board.' },
+          calarts: { tier: 2, rationale: 'Glenn Vilppu\'s figure drawing videos on NMA are legendary CalArts foundational training.' },
+          gobelins: { tier: 2, rationale: 'NMA\'s bi-weekly 1-on-1 coaching builds strong traditional draftsmanship.' },
+          taw: { tier: 2, rationale: 'Great for learning constructive figure and animal anatomy.' },
+          seneca: { tier: 2, rationale: 'Helps with structural anatomy and perspective.' },
+          aub: { tier: 2, rationale: 'Bloop helps produce clean animatics and short tests.' },
+          artcenter: { tier: 2, rationale: 'NMA covers dynamic sketching and perspective fundamentals.' },
+          ringling: { tier: 2, rationale: 'Builds strong traditional observational drawing habits.' }
+        },
+        packages: [
+          { id: 'nma-coach', name: 'NMA 1-on-1 Coaching (3 Months w/ Bi-Weekly Critique) + Bloop Storyboarding ($97 USD)', costCAD: 845, displayCost: '~$845 CAD ($169 USD/mo x 3 + $97 USD)' }
+        ]
+      },
+      {
+        id: 'ringling-pre',
+        name: 'Ringling College PreCollege (Summer 2027)',
+        url: 'https://www.ringling.edu/academics/precollege/',
+        location: 'Sarasota, Florida, USA (4-Week On-Campus Residential)',
+        delivery: 'SUMMER',
+        agePolicy: 'High school students aged 16–18 (Summer between Grade 11 and 12).',
+        credentials: 'Official Ringling College 4-week residential program (June 20 – July 17, 2027); awards 3 college credits.',
+        summary: 'Immersion on Ringling\'s Sarasota campus taught by Ringling faculty across figure drawing, 2D/3D animation, and entertainment design. Applications opened Nov 1, 2026 (first-come, first-served; balance due May 10, 2027). Direct 3h 14m Air Canada flights from Toronto (YYZ) to Sarasota (SRQ).',
+        schoolMatch: {
+          ringling: { tier: 3, rationale: 'Direct feeder into Ringling; awards 3 college credits and produces faculty-critiqued pieces ahead of the Nov 1 Early Action deadline.' },
+          artcenter: { tier: 3, rationale: 'Strong US studio immersion for Entertainment Design and Concept Art.' },
+          calarts: { tier: 3, rationale: 'Builds 4 weeks of intensive figure drawing and animation studio work.' },
+          sheridan: { tier: 3, rationale: 'Accelerates summer figure and animation output before Grade 12.' },
+          gobelins: { tier: 3, rationale: 'Produces strong observational and character design pieces.' },
+          taw: { tier: 3, rationale: 'Great summer studio bootcamp.' },
+          aub: { tier: 3, rationale: 'Demonstrates high commitment on your UCAS application.' },
+          seneca: { tier: 3, rationale: 'Builds strong foundational pieces.' }
+        },
+        packages: [
+          { id: 'ringling-precollege', name: 'Ringling 4-Week Residential PreCollege (June 20 – July 17, 2027, incl. Room & 81 Meals)', costCAD: 10780, displayCost: '~$10,780 CAD ($7,700 USD all-in + flight)' }
+        ]
+      },
+      {
+        id: 'csssa',
+        name: 'CSSSA — California State Summer School for the Arts',
+        url: 'https://www.csssa.ca.gov/programs/animation/',
+        location: 'California, USA (4-Week On-Campus Residential)',
+        delivery: 'SUMMER',
+        agePolicy: 'Grades 8–12 (Selective quota for international/Canadian students).',
+        credentials: 'California\'s official state-backed summer animation conservatory (July 5 – July 31, 2027).',
+        summary: 'Historic California summer animation intensive immersing students in daily 2D hand-drawn animation, life drawing, and experimental filmmaking. Hard deadline: Feb 28, 2027 at 6:00 PM PST (zero extensions; decisions Apr 30; balance due May 15).',
+        schoolMatch: {
+          calarts: { tier: 3, rationale: 'Historically the single most famous summer feeder program into CalArts Character Animation.' },
+          sheridan: { tier: 3, rationale: 'Intense 4-week 2D hand-drawn and life drawing bootcamp.' },
+          gobelins: { tier: 3, rationale: 'High-volume analog 2D animation and life drawing immersion.' },
+          taw: { tier: 3, rationale: 'Strong alignment with European 2D auteur animation culture.' },
+          aub: { tier: 3, rationale: 'Produces standout 2D traditional animation reel pieces.' },
+          artcenter: { tier: 3, rationale: 'Strong California network for Entertainment Design Animation track.' },
+          ringling: { tier: 3, rationale: 'Great preparation for Ringling\'s 2D Character Animation BFA.' },
+          seneca: { tier: 3, rationale: 'Builds strong 2D studio fundamentals.' }
+        },
+        packages: [
+          { id: 'csssa-summer', name: 'CSSSA 4-Week Residential Animation Program (July 5 – July 31, 2027 — Int\'l Rate)', costCAD: 15400, displayCost: '~$15,400 CAD ($10,999 USD incl. Room/Board)' }
+        ]
+      },
+      {
+        id: 'gobelins-summer',
+        name: 'GOBELINS Paris Summer Camp: The Magic of Animation',
+        url: 'https://www.gobelins-school.com/animated-filmmaking/programmes/summer-camp/magic-animation',
+        location: 'Paris, France (Saint-Marcel Campus — Residential)',
+        delivery: 'SUMMER',
+        agePolicy: 'High school teens preparing for international animation studies.',
+        credentials: 'Official GOBELINS Paris summer immersion taught by GOBELINS faculty.',
+        summary: 'Hands-on summer studio experience inside GOBELINS\' Paris Saint-Marcel campus covering 2D character animation, pixilation, stop-motion, and portfolio expectations directly with GOBELINS instructors.',
+        schoolMatch: {
+          gobelins: { tier: 3, rationale: 'Direct immersion inside GOBELINS Paris with the faculty who evaluate the entrance exam.' },
+          taw: { tier: 3, rationale: 'Builds European conservatory sensibilities and 2D/stop-motion skills.' },
+          aub: { tier: 3, rationale: 'Pairs well with AUB\'s 2D and stop-motion Animation Production curriculum.' },
+          calarts: { tier: 3, rationale: 'Great international auteur filmmaking experience.' },
+          sheridan: { tier: 3, rationale: 'Adds unique international short-film tests to Section E (Personal Work).' },
+          artcenter: { tier: 3, rationale: 'Broadens visual storytelling vocabulary.' },
+          ringling: { tier: 3, rationale: 'Strong summer studio credential.' },
+          seneca: { tier: 3, rationale: 'Builds strong personal portfolio pieces.' }
+        },
+        packages: [
+          { id: 'gobelins-camp', name: 'GOBELINS Paris Summer Camp Package', costCAD: 9735, displayCost: '~$9,735 CAD (€6,490 EUR)' }
+        ]
+      }
+    ];
+
+    let activeSchoolId = 'sheridan';
+    let activeRegion = 'ALL';
+    let selectedPackages = new Set(['apw-full', 'tsa-march']); // Default Gold-Standard Sheridan Stack
+
+    function filterSchoolsByRegion(region) {
+      activeRegion = region;
+      ['ALL', 'CA', 'EU', 'US'].forEach(r => {
+        const btn = document.getElementById('reg-' + r);
+        if (r === region) {
+          btn.className = 'py-1.5 rounded-md bg-indigo-600 text-white transition';
+        } else {
+          btn.className = 'py-1.5 rounded-md text-slate-400 hover:text-white transition';
         }
+      });
+      renderSchoolList();
+    }
 
-        async function processImage(file) {
-            setState('LOADING');
-            try {
-                const base64Data = await fileToBase64(file);
-                const extractedData = await callGeminiAPI(base64Data);
-                
-                if (extractedData && extractedData.players) {
-                    state.players = extractedData.players.map((p, index) => ({
-                        id: 'player_' + Date.now() + index,
-                        name: p.name || `Player ${index + 1}`,
-                        handicap: 0,
-                        scores: padArray(p.scores || [], 18, 0).map(s => Number(s) || 0)
-                    }));
-                    state.pars = padArray(extractedData.pars || [], 18, 4).map(s => Number(s) || 4);
-                    state.strokeIndexes = padArray(extractedData.strokeIndexes || [], 18, 0).map((s, i) => Number(s) || (i+1));
-                } else {
-                    throw new Error("Invalid format");
-                }
-            } catch (err) {
-                console.error(err);
-                showToast("Could not read the scorecard. Entering manual mode.");
-                state.players = [{ id: 'player_1', name: 'Player 1', handicap: 0, scores: Array(18).fill(0) }];
-            }
-            setState('EDIT_PLAYERS');
-        }
+    function selectSchool(schoolId) {
+      activeSchoolId = schoolId;
+      renderSchoolList();
+      renderSchoolDossier();
+      renderConsultants();
+    }
 
-        async function callGeminiAPI(base64String) {
-            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-            const payload = {
-                contents: [{
-                    role: "user",
-                    parts: [
-                        { text: "Analyze this golf scorecard. Extract players' names, hole-by-hole scores (1 to 18). Extract Par for each hole, and Stroke Index (Handicap rating 1-18) if visible. Return exactly 18 elements for pars, strokeIndexes, and each player's scores array (use 0 for blank/unread holes)." },
-                        { inlineData: { mimeType: "image/jpeg", data: base64String.split(',')[1] } }
-                    ]
-                }],
-                generationConfig: {
-                    responseMimeType: "application/json",
-                    responseSchema: {
-                        type: "OBJECT",
-                        properties: {
-                            players: { type: "ARRAY", items: { type: "OBJECT", properties: { name: { type: "STRING" }, scores: { type: "ARRAY", items: { type: "NUMBER" } } } } },
-                            pars: { type: "ARRAY", items: { type: "NUMBER" } },
-                            strokeIndexes: { type: "ARRAY", items: { type: "NUMBER" } }
-                        }
-                    }
-                }
-            };
+    function applyPreset(pkgIds) {
+      selectedPackages = new Set(pkgIds);
+      updateBudgetBar();
+      renderConsultants();
+    }
 
-            for (let i = 0; i < 5; i++) {
-                try {
-                    const response = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                    const data = await response.json();
-                    if (data.candidates && data.candidates[0].content.parts[0].text) return JSON.parse(data.candidates[0].content.parts[0].text);
-                } catch (e) { await new Promise(r => setTimeout(r, Math.pow(2, i) * 1000)); }
-            }
-            throw new Error("API completely failed.");
-        }
+    function togglePackage(pkgId) {
+      if (selectedPackages.has(pkgId)) {
+        selectedPackages.delete(pkgId);
+      } else {
+        selectedPackages.add(pkgId);
+      }
+      updateBudgetBar();
+      renderConsultants();
+    }
 
-        function getPlayerNetOnHole(p, holeIndex) {
-            if (!p || p.scores[holeIndex] === 0) return 999;
-            const hcp = p.handicap;
-            const strokeIndex = state.strokeIndexes[holeIndex] || 18;
-            const strokesGiven = Math.floor(hcp / 18) + (strokeIndex <= (hcp % 18) ? 1 : 0);
-            return p.scores[holeIndex] - strokesGiven;
-        }
+    function clearStack() {
+      selectedPackages.clear();
+      updateBudgetBar();
+      renderConsultants();
+    }
 
-        function getStrokesGivenOnHole(p, holeIndex) {
-            if (!p) return 0;
-            const hcp = p.handicap;
-            const strokeIndex = state.strokeIndexes[holeIndex] || 18;
-            return Math.floor(hcp / 18) + (strokeIndex <= (hcp % 18) ? 1 : 0);
-        }
+    function renderSchoolList() {
+      const container = document.getElementById('schoolListContainer');
+      const filtered = SCHOOLS.filter(s => activeRegion === 'ALL' || s.region === activeRegion);
+      container.innerHTML = filtered.map(s => {
+        const isActive = s.id === activeSchoolId;
+        return `
+          <button onclick="selectSchool('${s.id}')" class="w-full text-left p-3 rounded-xl border transition flex items-start justify-between gap-2 ${
+            isActive
+              ? 'bg-indigo-600/20 border-indigo-500 shadow-md'
+              : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 hover:bg-slate-900'
+          }">
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-base">${s.flag}</span>
+                <span class="font-bold text-sm ${isActive ? 'text-indigo-300' : 'text-white'}">${s.name}</span>
+              </div>
+              <div class="text-xs text-slate-400 mt-0.5 line-clamp-1">${s.program}</div>
+              <div class="text-[11px] text-emerald-400 font-medium mt-1">${s.tuitionCAD}</div>
+            </div>
+            <span class="text-xs px-2 py-0.5 rounded font-semibold ${
+              isActive ? 'bg-indigo-500 text-white' : 'bg-slate-800 text-slate-400'
+            }">Select</span>
+          </button>
+        `;
+      }).join('');
+    }
 
-        function calculateResults() {
-            const format = state.selectedFormat;
-            let results = state.players.map(p => ({ ...p, totalScore: 0, points: 0, holeByHole: Array(18).fill(0) }));
+    function renderSchoolDossier() {
+      const school = SCHOOLS.find(s => s.id === activeSchoolId);
+      const card = document.getElementById('schoolDossierCard');
+      card.innerHTML = `
+        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 border-b border-slate-800 pb-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-2xl">${school.flag}</span>
+              <h2 class="text-xl sm:text-2xl font-extrabold text-white">${school.name}</h2>
+              <span class="px-2.5 py-0.5 text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-full">${school.tuitionCAD}</span>
+            </div>
+            <p class="text-sm text-indigo-300 font-semibold mt-1">${school.program} • ${school.location}</p>
+          </div>
+          <div class="bg-slate-950/80 border border-slate-800 rounded-xl px-3.5 py-2 text-right shrink-0">
+            <div class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Selectivity & Cutoff</div>
+            <div class="text-xs font-bold text-amber-300 mt-0.5">${school.acceptanceCutoff}</div>
+          </div>
+        </div>
 
-            if (format === 'GROSS') {
-                results.forEach(p => { p.totalScore = p.scores.reduce((a, b) => a + b, 0); p.holeByHole = [...p.scores]; });
-                results.sort((a, b) => a.totalScore - b.totalScore);
-            } else if (format === 'NET') {
-                results.forEach(p => {
-                    let netTotal = 0;
-                    for (let hole = 0; hole < 18; hole++) {
-                        const netScore = getPlayerNetOnHole(p, hole);
-                        p.holeByHole[hole] = netScore === 999 ? 0 : netScore;
-                        netTotal += p.holeByHole[hole];
-                    }
-                    p.totalScore = netTotal; 
-                });
-                results.sort((a, b) => a.totalScore - b.totalScore);
-            } else if (format === 'SKINS') {
-                for (let hole = 0; hole < 18; hole++) {
-                    let netScoresOnHole = results.map(p => getPlayerNetOnHole(p, hole));
-                    const minNet = Math.min(...netScoresOnHole);
-                    if (minNet < 999) {
-                        const winners = [];
-                        netScoresOnHole.forEach((score, index) => { if (score === minNet) winners.push(index); });
-                        if (winners.length === 1) { results[winners[0]].points += 1; results[winners[0]].holeByHole[hole] = 1; }
-                    }
-                }
-                results.sort((a, b) => b.points - a.points);
-            }
-            state.results = results;
-        }
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 text-xs">
+          <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3.5 space-y-1.5">
+            <div class="font-bold text-slate-200 uppercase tracking-wider text-[11px]">📅 Key Deadlines & Portal</div>
+            <p class="text-slate-300"><strong class="text-white">Deadlines:</strong> ${school.deadlines}</p>
+            <p class="text-slate-300"><strong class="text-white">Portal:</strong> ${school.portal}</p>
+            <p class="text-slate-300"><strong class="text-white">OSSD Prerequisites:</strong> ${school.academics}</p>
+          </div>
 
-        function calculateMatchPlay() {
-            const match = state.matches[0];
-            let playerPoints = {};
-            state.players.forEach(p => playerPoints[p.id] = 0);
-            match.holeByHole = [];
+          <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3.5 space-y-1.5">
+            <div class="font-bold text-indigo-300 uppercase tracking-wider text-[11px]">🎯 Portfolio Gatekeeper & Insider Tip</div>
+            <p class="text-slate-300 leading-relaxed">${school.rubricSummary}</p>
+            <p class="text-emerald-300 font-medium pt-1">💡 <strong>Insider Strategy:</strong> ${school.insiderTip}</p>
+          </div>
+        </div>
+      `;
 
-            for (let i = 0; i < 18; i++) {
-                let sideA = Object.keys(match.holeAssignments[i] || {}).filter(id => match.holeAssignments[i][id] === 'A');
-                let sideB = Object.keys(match.holeAssignments[i] || {}).filter(id => match.holeAssignments[i][id] === 'B');
+      // Render Recommended Instant Stacks
+      const presetBar = document.getElementById('recommendedStacksBar');
+      presetBar.innerHTML = `
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+          <div>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-indigo-300">⚡ One-Click Recommended Prep Stacks for ${school.name}</h3>
+            <p class="text-xs text-slate-400">Click a preset below to auto-load its matching packages into your CAD budget calculator:</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          ${school.recommendedPresets.map((p, idx) => `
+            <button onclick='applyPreset(${JSON.stringify(p.pkgIds)})' class="text-left p-3 rounded-xl bg-slate-950 hover:bg-indigo-950/40 border border-slate-800 hover:border-indigo-500/60 transition group">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-white group-hover:text-indigo-300">${p.label}</span>
+                <span class="text-[11px] px-2 py-0.5 bg-indigo-600/30 text-indigo-200 rounded font-semibold">Load Stack</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-1">${p.desc}</p>
+            </button>
+          `).join('')}
+        </div>
+      `;
+    }
 
-                let aScores = sideA.map(id => getPlayerNetOnHole(state.players.find(p=>p.id===id), i)).filter(s => s < 999);
-                let bScores = sideB.map(id => getPlayerNetOnHole(state.players.find(p=>p.id===id), i)).filter(s => s < 999);
+    function renderConsultants() {
+      const delivery = document.getElementById('deliveryFilter').value;
+      const tierFilter = document.getElementById('tierFilter').value;
+      const container = document.getElementById('consultantsContainer');
 
-                if (aScores.length === 0 && bScores.length === 0) {
-                    match.holeByHole.push('-');
-                    continue;
-                }
-                
-                if (aScores.length === 0) aScores = [999];
-                if (bScores.length === 0) bScores = [999];
+      // Filter and sort consultants based on activeSchoolId match tier
+      const matched = CONSULTANTS
+        .filter(c => c.schoolMatch[activeSchoolId])
+        .filter(c => delivery === 'ALL' || c.delivery === delivery)
+        .filter(c => tierFilter === 'ALL' || String(c.schoolMatch[activeSchoolId].tier) === tierFilter)
+        .sort((a, b) => a.schoolMatch[activeSchoolId].tier - b.schoolMatch[activeSchoolId].tier);
 
-                let ptsA = 0;
-                let ptsB = 0;
-                let status = "";
+      document.getElementById('matchedCountBadge').textContent = `${matched.length} matched`;
 
-                if (state.selectedFormat === '6S') {
-                    if (i < 6) { 
-                        // Holes 1-6: Best Ball
-                        let minA = Math.min(...aScores);
-                        let minB = Math.min(...bScores);
-                        if (minA < minB) ptsA = 1; else if (minB < minA) ptsB = 1; else { ptsA = 0.5; ptsB = 0.5; }
-                        status = ptsA > ptsB ? 'A Wins Best Ball' : (ptsB > ptsA ? 'B Wins Best Ball' : 'Halved');
-                    } else if (i < 12) { 
-                        // Holes 7-12: Total Score
-                        let sumA = aScores.includes(999) ? 999 : aScores.reduce((a,b)=>a+b,0);
-                        let sumB = bScores.includes(999) ? 999 : bScores.reduce((a,b)=>a+b,0);
-                        if (sumA < sumB) ptsA = 1; else if (sumB < sumA) ptsB = 1; else { ptsA = 0.5; ptsB = 0.5; }
-                        status = ptsA > ptsB ? 'A Wins Total Score' : (ptsB > ptsA ? 'B Wins Total Score' : 'Halved');
-                    } else { 
-                        // Holes 13-18: High / Low
-                        let minA = Math.min(...aScores); let minB = Math.min(...bScores);
-                        let maxA = Math.max(...aScores); let maxB = Math.max(...bScores);
-                        
-                        let lowWinner = minA < minB ? 'A' : (minB < minA ? 'B' : 'Tie');
-                        let highWinner = maxA < maxB ? 'A' : (maxB < maxA ? 'B' : 'Tie');
-                        
-                        if (lowWinner === 'A') ptsA++; else if (lowWinner === 'B') ptsB++; else { ptsA += 0.5; ptsB += 0.5; }
-                        if (highWinner === 'A') ptsA++; else if (highWinner === 'B') ptsB++; else { ptsA += 0.5; ptsB += 0.5; }
-                        
-                        if (ptsA > ptsB) status = `A Wins High/Low (${ptsA}-${ptsB})`;
-                        else if (ptsB > ptsA) status = `B Wins High/Low (${ptsB}-${ptsA})`;
-                        else status = `Halved High/Low`;
-                    }
-                } else { 
-                    // Standard MATCH (Best Ball per hole)
-                    let minA = Math.min(...aScores);
-                    let minB = Math.min(...bScores);
-                    if (minA < minB) ptsA = 1; else if (minB < minA) ptsB = 1; else { ptsA = 0.5; ptsB = 0.5; }
-                    status = ptsA > ptsB ? 'A Wins' : (ptsB > ptsA ? 'B Wins' : 'Halved');
-                }
+      const tierBadges = {
+        1: { label: 'Tier 1: Primary School Anchor', cls: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' },
+        2: { label: 'Tier 2: Targeted Skill Specialist', cls: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30' },
+        3: { label: 'Tier 3: Residential Summer Pre-College', cls: 'bg-amber-500/20 text-amber-300 border-amber-500/30' }
+      };
 
-                match.holeByHole.push(status);
-                sideA.forEach(id => playerPoints[id] += ptsA);
-                sideB.forEach(id => playerPoints[id] += ptsB);
-            }
+      const deliveryLabels = {
+        GTA: '📍 Toronto / GTA In-Person & Hybrid',
+        ONLINE: '💻 Live Online / Remote Mentorship',
+        SUMMER: '✈️ Summer 2027 On-Campus Residency'
+      };
 
-            match.playerPoints = playerPoints;
-            state.results = state.players.map(p => ({ ...p, points: match.playerPoints[p.id] })).sort((a,b) => b.points - a.points);
-        }
-
-        function setState(newView) { state.view = newView; render(); }
-
-        function render() {
-            appEl.innerHTML = '';
-            appEl.className = 'max-w-4xl mx-auto mt-6 px-4 fade-in';
-            switch(state.view) {
-                case 'UPLOAD': renderUpload(); break;
-                case 'LOADING': renderLoading(); break;
-                case 'EDIT_PLAYERS': renderEditPlayers(); break;
-                case 'EDIT_SCORES': renderEditScores(); break;
-                case 'FORMAT': renderFormat(); break;
-                case 'MATCH_SETUP': renderMatchSetup(); break;
-                case 'RESULTS': renderResults(); break;
-                case 'SCORECARD_DETAILS': renderScorecardDetails(); break;
-            }
-        }
-
-        function renderUpload() {
-            appEl.innerHTML = `
-                <div class="text-center mb-8">
-                    <h2 class="text-3xl font-bold text-green-800 mb-2">Analyze Your Scorecard</h2>
-                    <p class="text-green-600">Snap a picture or upload an image of your scorecard.</p>
+      container.innerHTML = matched.map(c => {
+        const matchInfo = c.schoolMatch[activeSchoolId];
+        const badge = tierBadges[matchInfo.tier];
+        return `
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg hover:border-slate-700 transition">
+            <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2 border-b border-slate-800/80 pb-3">
+              <div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <h3 class="text-base font-extrabold text-white">${c.name}</h3>
+                  <span class="px-2.5 py-0.5 text-[11px] font-bold border rounded-full ${badge.cls}">${badge.label}</span>
+                  <span class="text-xs text-slate-400">${deliveryLabels[c.delivery]}</span>
                 </div>
-                <div class="border-4 border-dashed border-green-300 rounded-2xl bg-white p-12 text-center cursor-pointer hover:bg-green-50 transition-colors" onclick="document.getElementById('fileInput').click()">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-16 w-16 text-green-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                    <h3 class="text-lg font-semibold text-green-700">Tap to Upload Scorecard</h3>
-                    <input type="file" id="fileInput" class="hidden" accept="image/*" onchange="handleFileUpload(event)">
-                </div>
-                <div class="mt-8 text-center">
-                    <button onclick="skipToManual()" class="text-green-600 font-medium hover:underline">Or enter scores manually</button>
-                </div>
-            `;
-        }
+                <p class="text-xs text-slate-400 mt-1">${c.credentials}</p>
+              </div>
+              <a href="${c.url}" target="_blank" rel="noopener" class="text-xs text-indigo-400 hover:text-indigo-300 font-semibold shrink-0">
+                Visit Website &rarr;
+              </a>
+            </div>
 
-        function renderLoading() {
-            appEl.innerHTML = `<div class="flex flex-col items-center justify-center py-20"><div class="spinner mb-6"></div><h2 class="text-2xl font-bold text-green-800">Reading Scorecard...</h2></div>`;
-        }
+            <div class="mt-3 space-y-2 text-xs">
+              <div class="p-2.5 rounded-lg bg-indigo-950/30 border border-indigo-500/20 text-indigo-200">
+                <strong>Why It Matches ${SCHOOLS.find(s => s.id === activeSchoolId).name}:</strong> ${matchInfo.rationale}
+              </div>
+              <p class="text-slate-300 leading-relaxed">${c.summary}</p>
+              <p class="text-slate-400"><strong class="text-slate-200">Age / Minor Policy:</strong> ${c.agePolicy}</p>
+            </div>
 
-        function renderEditPlayers() {
-            let playersHtml = state.players.map((p, idx) => `
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-green-100 flex flex-col sm:flex-row gap-4 items-end mb-4">
-                    <div class="w-full sm:flex-1">
-                        <label class="block text-sm font-semibold text-green-700 mb-1">Player ${idx + 1} Name</label>
-                        <input type="text" value="${p.name}" onchange="updatePlayer('${p.id}', 'name', this.value)" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-green-500 outline-none">
-                    </div>
-                    <div class="w-full sm:w-32">
-                        <label class="block text-sm font-semibold text-green-700 mb-1">Handicap</label>
-                        <input type="number" value="${p.handicap}" onchange="updatePlayer('${p.id}', 'handicap', this.value)" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-green-500 outline-none">
-                    </div>
-                    <button onclick="removePlayer('${p.id}')" ${state.players.length <= 1 ? 'disabled opacity-50 cursor-not-allowed' : ''} class="p-2.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors w-full sm:w-auto flex justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-                    </button>
-                </div>
-            `).join('');
+            <!-- Selectable Packages -->
+            <div class="mt-4 pt-3 border-t border-slate-800/80">
+              <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Available Courses & Packages (Check to add to CAD Budget Calculator):</div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                ${c.packages.map(pkg => {
+                  const isChecked = selectedPackages.has(pkg.id);
+                  return `
+                    <label onclick="togglePackage('${pkg.id}')" class="cursor-pointer p-2.5 rounded-xl border transition flex items-start justify-between gap-2 text-xs ${
+                      isChecked
+                        ? 'bg-emerald-950/40 border-emerald-500/60 text-white'
+                        : 'bg-slate-950/70 border-slate-800 text-slate-300 hover:border-slate-700'
+                    }">
+                      <div class="flex items-start gap-2">
+                        <input type="checkbox" ${isChecked ? 'checked' : ''} onclick="event.stopPropagation(); togglePackage('${pkg.id}')" class="mt-0.5 rounded border-slate-600 text-emerald-500 focus:ring-0" />
+                        <span class="font-medium leading-snug">${pkg.name}</span>
+                      </div>
+                      <span class="font-bold text-emerald-400 shrink-0">${pkg.displayCost}</span>
+                    </label>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
 
-            appEl.innerHTML = `
-                <div class="mb-6"><h2 class="text-2xl font-bold text-green-800">Verify Players & Handicaps</h2></div>
-                <div class="mb-6">${playersHtml}
-                    <button onclick="addPlayer()" class="w-full py-4 border-2 border-dashed border-green-400 text-green-600 font-semibold rounded-xl hover:bg-green-50 flex items-center justify-center gap-2">Add Another Player</button>
-                </div>
-                <div class="flex justify-end mt-8"><button onclick="setState('EDIT_SCORES')" class="bg-green-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-green-700 shadow-md">Next: Verify Scores</button></div>
-            `;
-        }
+    function updateBudgetBar() {
+      let totalCAD = 0;
+      let count = 0;
+      const selectedItems = [];
 
-        function renderEditScores() {
-            let headerRow = `<th class="sticky-col sticky-header bg-green-700 text-white p-3 text-left min-w-[120px]">Hole</th>`;
-            let parRow = `<td class="sticky-col bg-green-50 font-semibold p-3 border-b text-green-800">Par</td>`;
-            let siRow = `<td class="sticky-col bg-green-50 font-semibold p-3 border-b text-green-800">Stroke Index</td>`;
-            
-            for(let i=0; i<18; i++) {
-                headerRow += `<th class="p-3 border-b border-green-600 bg-green-600 text-white min-w-[60px] text-center">${i+1}</th>`;
-                parRow += `<td class="p-2 border-b text-center"><input type="number" min="1" max="6" value="${state.pars[i]}" onchange="state.pars[${i}]=Number(this.value)" class="w-12 p-1 text-center border rounded"></td>`;
-                siRow += `<td class="p-2 border-b text-center"><input type="number" min="1" max="18" value="${state.strokeIndexes[i]}" onchange="state.strokeIndexes[${i}]=Number(this.value)" class="w-12 p-1 text-center border rounded"></td>`;
-            }
+      CONSULTANTS.forEach(c => {
+        c.packages.forEach(pkg => {
+          if (selectedPackages.has(pkg.id)) {
+            totalCAD += pkg.costCAD;
+            count++;
+            selectedItems.push({ org: c.name, ...pkg });
+          }
+        });
+      });
 
-            let playerRows = state.players.map((p) => {
-                let row = `<td class="sticky-col bg-white font-bold p-3 border-b border-r text-gray-800">${p.name}</td>`;
-                for(let i=0; i<18; i++) {
-                    row += `<td class="p-2 border-b text-center"><input type="number" min="0" max="20" value="${p.scores[i] || ''}" oninput="updateScore('${p.id}', ${i}, this.value)" class="w-12 p-2 text-center border border-gray-300 rounded font-semibold text-gray-800 focus:ring-2 focus:ring-green-500 outline-none"></td>`;
-                }
-                return `<tr>${row}</tr>`;
-            }).join('');
+      document.getElementById('selectedCount').textContent = count;
+      document.getElementById('totalCostDisplay').textContent = '$' + totalCAD.toLocaleString() + ' CAD';
+      document.getElementById('modalTotalCAD').textContent = '$' + totalCAD.toLocaleString() + ' CAD';
 
-            appEl.innerHTML = `
-                <div class="mb-6"><h2 class="text-2xl font-bold text-green-800">Verify Scores</h2></div>
-                <div class="bg-white rounded-xl shadow-md overflow-hidden border border-green-200">
-                    <div class="overflow-x-auto relative"><table class="w-full text-sm border-collapse"><thead><tr>${headerRow}</tr></thead><tbody><tr class="bg-green-50">${parRow}</tr><tr class="bg-green-50">${siRow}</tr>${playerRows}</tbody></table></div>
-                </div>
-                <div class="flex justify-between mt-8"><button onclick="setState('EDIT_PLAYERS')" class="text-green-700 font-semibold px-4 py-2 hover:bg-green-100 rounded-lg">Back</button><button onclick="setState('FORMAT')" class="bg-green-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-green-700 shadow-md">Next: Choose Format</button></div>
-            `;
-        }
+      const modalBody = document.getElementById('budgetModalBody');
+      if (selectedItems.length === 0) {
+        modalBody.innerHTML = `<p class="text-sm text-slate-400 text-center py-8">No packages selected yet. Check any course or mentorship package on the main screen to build your custom prep budget.</p>`;
+      } else {
+        modalBody.innerHTML = selectedItems.map(item => `
+          <div class="flex items-center justify-between gap-4 p-3 rounded-xl bg-slate-950 border border-slate-800">
+            <div>
+              <div class="text-xs font-bold text-indigo-300">${item.org}</div>
+              <div class="text-sm font-semibold text-white">${item.name}</div>
+            </div>
+            <div class="flex items-center gap-3 shrink-0">
+              <span class="text-sm font-bold text-emerald-400">$${item.costCAD.toLocaleString()} CAD</span>
+              <button onclick="togglePackage('${item.id}')" class="text-xs text-rose-400 hover:text-rose-300 font-semibold">Remove</button>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
 
-        function renderFormat() {
-            appEl.innerHTML = `
-                <div class="text-center mb-8"><h2 class="text-3xl font-bold text-green-800 mb-2">How should we evaluate?</h2></div>
-                <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                    <button onclick="selectFormat('GROSS')" class="bg-white border-2 border-green-200 p-6 rounded-2xl shadow-sm hover:border-green-500 transition-all text-left">
-                        <h3 class="text-xl font-bold text-gray-800 mb-2">Stroke (Gross)</h3><p class="text-sm text-gray-500">Lowest total score wins.</p>
-                    </button>
-                    <button onclick="selectFormat('NET')" class="bg-white border-2 border-green-200 p-6 rounded-2xl shadow-sm hover:border-green-500 transition-all text-left">
-                        <h3 class="text-xl font-bold text-gray-800 mb-2">Stroke (Net)</h3><p class="text-sm text-gray-500">Gross score minus handicap.</p>
-                    </button>
-                    <button onclick="selectFormat('SKINS')" class="bg-white border-2 border-green-200 p-6 rounded-2xl shadow-sm hover:border-green-500 transition-all text-left">
-                        <h3 class="text-xl font-bold text-gray-800 mb-2">Skins (Net)</h3><p class="text-sm text-gray-500">Win hole outright for 1 point.</p>
-                    </button>
-                    <button onclick="selectFormat('MATCH')" class="bg-white border-2 border-green-200 p-6 rounded-2xl shadow-sm hover:border-green-500 transition-all text-left">
-                        <h3 class="text-xl font-bold text-gray-800 mb-2">Match Play</h3><p class="text-sm text-gray-500">Points per hole (Best Ball).</p>
-                    </button>
-                    <button onclick="selectFormat('6S')" class="bg-white border-2 border-indigo-300 p-6 rounded-2xl shadow-sm hover:border-indigo-600 transition-all text-left sm:col-span-2 lg:col-span-4 bg-indigo-50">
-                        <h3 class="text-xl font-bold text-indigo-900 mb-2">6s (Sixes Round Robin)</h3><p class="text-sm text-indigo-700">Rotate teams! Holes 1-6: Best Ball. Holes 7-12: Total Score. Holes 13-18: High/Low.</p>
-                    </button>
-                </div>
-            `;
-        }
+    function toggleBudgetModal() {
+      const modal = document.getElementById('budgetModal');
+      modal.classList.toggle('hidden');
+    }
 
-        function renderMatchSetup() {
-            if (state.matches.length === 0) {
-                // Initialize default team layout for Holes 1-18
-                let defaultAssignments = Array(18).fill(null).map(() => {
-                    let hm = {};
-                    if (state.players.length >= 2) {
-                        hm[state.players[0].id] = 'A';
-                        hm[state.players[1].id] = 'B';
-                        if (state.players.length >= 4) {
-                            hm[state.players[2].id] = 'A';
-                            hm[state.players[3].id] = 'B';
-                        }
-                    }
-                    return hm;
-                });
-                state.matches.push({ id: 'match_1', holeAssignments: defaultAssignments });
-            }
-
-            let formatTitle = state.selectedFormat === '6S' ? 'Sixes Team Setup' : 'Match Play Team Setup';
-            let instructions = state.selectedFormat === '6S' ? 'Tap players to assign them to Team A or Team B for each hole segment.' : 'Assign players to Team A or Team B.';
-
-            let holeRows = state.matches[0].holeAssignments.map((assignment, i) => {
-                let playerButtons = state.players.map(p => {
-                    let team = assignment[p.id];
-                    let btnClass = "px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-all ";
-                    let label = p.name;
-                    if (team === 'A') { btnClass += "bg-green-600 text-white border border-green-700 hover:bg-green-700"; label += " (Team A)"; }
-                    else if (team === 'B') { btnClass += "bg-blue-600 text-white border border-blue-700 hover:bg-blue-700"; label += " (Team B)"; }
-                    else { btnClass += "bg-gray-100 text-gray-500 border border-gray-300 hover:bg-gray-200"; }
-                    
-                    return `<button onclick="cyclePlayerSide(${i}, '${p.id}')" class="${btnClass}">${label}</button>`;
-                }).join('');
-
-                return `
-                    <div class="flex flex-col sm:flex-row sm:items-center gap-3 p-4 bg-white border-b hover:bg-gray-50 transition-colors">
-                        <div class="w-16 font-black text-gray-400">Hole ${i+1}</div>
-                        <div class="flex-1 flex flex-wrap gap-2">${playerButtons}</div>
-                        <button onclick="fillDown(${i})" class="text-indigo-600 font-semibold hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-2 rounded-lg flex items-center gap-1 transition-colors text-sm" title="Apply these teams to all remaining holes">
-                            Copy Down <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
-                        </button>
-                    </div>
-                `;
-            }).join('');
-
-            appEl.innerHTML = `
-                <div class="mb-6">
-                    <h2 class="text-3xl font-bold text-green-800">${formatTitle}</h2>
-                    <p class="text-green-600 mt-1">${instructions}</p>
-                </div>
-                <div class="border rounded-xl overflow-hidden shadow-sm mb-8">${holeRows}</div>
-                <div class="flex justify-between pb-10">
-                    <button onclick="setState('FORMAT')" class="text-green-700 font-semibold px-4 py-2 hover:bg-green-100 rounded-lg">Back</button>
-                    <button onclick="evaluateMatchPlay()" class="bg-green-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-green-700 shadow-md">Start Match</button>
-                </div>
-            `;
-        }
-
-        function renderResults() {
-            let medals = ['🥇', '🥈', '🥉', '🏅'];
-            let colors = ['bg-yellow-100 border-yellow-400', 'bg-gray-100 border-gray-400', 'bg-orange-100 border-orange-400', 'bg-white border-green-200'];
-
-            let listHtml = state.results.map((p, idx) => {
-                let medal = idx < 3 ? medals[idx] : medals[3];
-                let colorClass = idx < 3 ? colors[idx] : colors[3];
-                let scoreDisplay = (state.selectedFormat === 'MATCH' || state.selectedFormat === '6S' || state.selectedFormat === 'SKINS') ? `${p.points} pts` : p.totalScore;
-
-                return `
-                    <div class="${colorClass} border-2 rounded-2xl p-4 sm:p-6 mb-4 flex items-center justify-between shadow-sm transform transition hover:scale-[1.02]">
-                        <div class="flex items-center gap-4">
-                            <div class="text-3xl sm:text-4xl">${medal}</div>
-                            <div>
-                                <h3 class="text-xl sm:text-2xl font-bold text-gray-800">${p.name}</h3>
-                                <p class="text-sm text-gray-600">Handicap: ${p.handicap}</p>
-                            </div>
-                        </div>
-                        <div class="text-right"><div class="text-3xl sm:text-4xl font-black text-gray-900">${scoreDisplay}</div></div>
-                    </div>
-                `;
-            }).join('');
-
-            appEl.innerHTML = `
-                <div class="text-center mb-8"><h2 class="text-3xl font-bold text-green-800 mb-2">Final Leaderboard</h2><p class="text-green-600 font-medium">Format: ${state.selectedFormat}</p></div>
-                <div class="max-w-2xl mx-auto">${listHtml}</div>
-                <div class="mt-8 text-center"><button onclick="setState('SCORECARD_DETAILS')" class="bg-white text-green-700 font-semibold px-6 py-3 border-2 border-green-300 hover:bg-green-50 rounded-lg">See Scorecard Breakdown</button></div>
-                <div class="mt-8 text-center"><button onclick="resetApp()" class="text-gray-500 font-medium hover:underline">Start New Scorecard</button></div>
-            `;
-        }
-
-        function renderScorecardDetails() {
-            let headerRow = `<th class="sticky-col sticky-header bg-green-700 text-white p-3 text-left min-w-[120px]">Hole</th>`;
-            let parRow = `<td class="sticky-col bg-green-50 font-semibold p-3 border-b text-green-800">Par</td>`;
-            for(let i=0; i<18; i++) {
-                headerRow += `<th class="p-3 border-b border-green-600 bg-green-600 text-white min-w-[50px] text-center">${i+1}</th>`;
-                parRow += `<td class="p-2 border-b text-center font-medium">${state.pars[i]}</td>`;
-            }
-            headerRow += `<th class="p-3 border-b bg-green-800 text-white min-w-[60px] text-center sticky right-0">Total</th>`;
-            parRow += `<td class="p-2 border-b text-center font-bold bg-green-100 sticky right-0">${state.pars.reduce((a,b)=>a+b,0)}</td>`;
-
-            let isMatch = state.selectedFormat === 'MATCH' || state.selectedFormat === '6S';
-            
-            let playerRows = state.results.map((p) => {
-                let row = `<td class="sticky-col bg-white font-bold p-3 border-b border-r text-gray-800 shadow-[2px_0_5px_rgba(0,0,0,0.05)]">${p.name}</td>`;
-                for(let i=0; i<18; i++) {
-                    let displayVal = isMatch ? p.scores[i] : p.holeByHole[i];
-                    if (state.selectedFormat === 'SKINS' && p.holeByHole[i] === 0) displayVal = '-';
-                    if (p.scores[i] === 0) displayVal = ''; 
-                    
-                    let cellClass = "p-2 border-b text-center font-medium relative ";
-                    if (isMatch) {
-                        let team = state.matches[0].holeAssignments[i][p.id];
-                        if (team === 'A') cellClass += "bg-green-100 text-green-800 font-bold border-r-2 border-green-300";
-                        else if (team === 'B') cellClass += "bg-blue-100 text-blue-800 font-bold border-r-2 border-blue-300";
-                        else cellClass += "text-gray-400";
-                    } else if (state.selectedFormat !== 'SKINS' && p.scores[i] > 0) {
-                        let diff = p.holeByHole[i] - state.pars[i];
-                        if (diff < 0) cellClass += " text-red-600 font-bold";
-                        else if (diff > 0) cellClass += " text-blue-600";
-                    }
-                    
-                    // Add Handicap Dots
-                    let dotsHtml = '';
-                    if (displayVal !== '') {
-                        let strokesGiven = getStrokesGivenOnHole(p, i);
-                        if (strokesGiven > 0) {
-                             dotsHtml = `<div class="absolute top-0 right-1 text-[10px] leading-none text-green-800 font-black tracking-tighter" style="margin-top: 2px;">${'•'.repeat(strokesGiven)}</div>`;
-                        }
-                    }
-
-                    row += `<td class="${cellClass}">${displayVal}${dotsHtml}</td>`;
-                }
-                
-                let totalVal = (state.selectedFormat === 'SKINS' || isMatch) ? p.points : p.totalScore;
-                row += `<td class="p-2 border-b text-center font-black bg-gray-50 sticky right-0 shadow-[-2px_0_5px_rgba(0,0,0,0.05)]">${totalVal}</td>`;
-                return `<tr>${row}</tr>`;
-            }).join('');
-
-            // Add the Hole Status Row if we are in Match Play mode
-            if (isMatch) {
-                let statusRow = `<td class="sticky-col bg-gray-800 text-white font-bold p-3 border-b border-r text-xs uppercase shadow-[2px_0_5px_rgba(0,0,0,0.05)]">Match Result</td>`;
-                for (let i=0; i<18; i++) {
-                    let resultStr = state.matches[0].holeByHole[i];
-                    let bgCol = resultStr.startsWith('A') ? 'bg-green-200 text-green-900' : (resultStr.startsWith('B') ? 'bg-blue-200 text-blue-900' : 'bg-gray-200 text-gray-800');
-                    statusRow += `<td class="p-2 border-b text-center text-[10px] font-black uppercase leading-tight ${bgCol}">${resultStr}</td>`;
-                }
-                statusRow += `<td class="p-2 border-b text-center font-black bg-gray-800 text-white sticky right-0 shadow-[-2px_0_5px_rgba(0,0,0,0.05)]">-</td>`;
-                playerRows += `<tr>${statusRow}</tr>`;
-            }
-
-            appEl.innerHTML = `
-                <div class="mb-6"><h2 class="text-2xl font-bold text-green-800">Hole-by-Hole Details</h2></div>
-                <div class="bg-white rounded-xl shadow-md overflow-hidden border border-green-200 mb-8">
-                    <div class="overflow-x-auto relative"><table class="w-full text-sm border-collapse whitespace-nowrap"><thead><tr>${headerRow}</tr></thead><tbody><tr class="bg-green-50">${parRow}</tr>${playerRows}</tbody></table></div>
-                </div>
-                <div class="text-center pb-8"><button onclick="setState('RESULTS')" class="bg-green-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-green-700 shadow-md">Back to Leaderboard</button></div>
-            `;
-        }
-
-        function handleFileUpload(event) { if (event.target.files[0]) processImage(event.target.files[0]); }
-        function fileToBase64(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result); reader.onerror = error => reject(error); }); }
-        function skipToManual() { state.players = [{ id: 'player_1', name: 'Player 1', handicap: 0, scores: Array(18).fill(0) }]; setState('EDIT_PLAYERS'); }
-        function addPlayer() { state.players.push({ id: 'player_' + Date.now(), name: 'Player ' + (state.players.length + 1), handicap: 0, scores: Array(18).fill(0) }); renderEditPlayers(); }
-        function removePlayer(id) { if(state.players.length <= 1) return; state.players = state.players.filter(p => p.id !== id); renderEditPlayers(); }
-        function updatePlayer(id, field, value) { const p = state.players.find(x => x.id === id); if (p) p[field] = field === 'handicap' ? (Number(value) || 0) : value; }
-        function updateScore(playerId, holeIndex, value) { const p = state.players.find(x => x.id === playerId); if (p) p.scores[holeIndex] = Number(value) || 0; }
-        
-        function selectFormat(format) { 
-            state.selectedFormat = format; 
-            if (format === 'MATCH' || format === '6S') {
-                state.matches = []; // Reset matches so they regenerate fresh
-                setState('MATCH_SETUP'); 
-            } else { 
-                calculateResults(); 
-                setState('RESULTS'); 
-            } 
-        }
-        
-        function evaluateMatchPlay() { calculateMatchPlay(); setState('RESULTS'); }
-        
-        function cyclePlayerSide(holeIndex, playerId) {
-            const current = state.matches[0].holeAssignments[holeIndex][playerId];
-            let next = '';
-            if (current === 'A') next = 'B';
-            else if (current === 'B') next = '';
-            else next = 'A';
-            state.matches[0].holeAssignments[holeIndex][playerId] = next;
-            renderMatchSetup();
-        }
-
-        function fillDown(holeIndex) {
-            const currentAssignment = { ...state.matches[0].holeAssignments[holeIndex] };
-            for (let i = holeIndex + 1; i < 18; i++) {
-                state.matches[0].holeAssignments[i] = { ...currentAssignment };
-            }
-            renderMatchSetup();
-        }
-
-        function resetApp() { state = { view: 'UPLOAD', players: [], pars: Array(18).fill(4), strokeIndexes: Array.from({length: 18}, (_, i) => i + 1), selectedFormat: null, results: [], matches: [] }; render(); }
-        function padArray(arr, len, fill) { return arr.concat(Array(len).fill(fill)).slice(0, len); }
-
-        render();
-    </script>
+    // Initialize on load
+    renderSchoolList();
+    renderSchoolDossier();
+    renderConsultants();
+    updateBudgetBar();
+  </script>
 </body>
 </html>
